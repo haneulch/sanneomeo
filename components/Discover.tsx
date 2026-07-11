@@ -8,12 +8,13 @@ import type { SeasonalPick } from "@/data/seasonal";
 interface Props {
   lang: Lang;
   setLang: (l: Lang) => void;
-  onOpenDetail: () => void;
+  onOpenMountain: (name: string) => void;
   onOpenPassport: () => void;
 }
 
 const CARDS = [
   {
+    ko: "대둔산",
     match: "match96",
     name: "m1Name",
     loc: "m1Loc",
@@ -31,6 +32,7 @@ const CARDS = [
     ),
   },
   {
+    ko: "선운산",
     match: "match92",
     name: "m2Name",
     loc: "m2Loc",
@@ -48,6 +50,7 @@ const CARDS = [
     ),
   },
   {
+    ko: "모악산",
     match: "match89",
     name: "m3Name",
     loc: "m3Loc",
@@ -74,7 +77,7 @@ const TASTE_CHIPS: { key: string; on: boolean }[] = [
   { key: "chipEasy", on: false },
 ];
 
-export default function Discover({ lang, setLang, onOpenDetail, onOpenPassport }: Props) {
+export default function Discover({ lang, setLang, onOpenMountain, onOpenPassport }: Props) {
   const t = makeT(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const [seasonal, setSeasonal] = useState<SeasonalPick[]>([]);
@@ -156,7 +159,7 @@ export default function Discover({ lang, setLang, onOpenDetail, onOpenPassport }
           </div>
           <div className="nowrow">
             {seasonal.map((s) => (
-              <button key={s.mountain + s.emoji} className="nowcard" onClick={onOpenDetail}>
+              <button key={s.mountain + s.emoji} className="nowcard" onClick={() => onOpenMountain(s.mountain)}>
                 <span className="em">{s.emoji}</span>
                 <b>{s.title[lang]}</b>
                 <span className="nowtag">{s.tag[lang]}</span>
@@ -182,7 +185,7 @@ export default function Discover({ lang, setLang, onOpenDetail, onOpenPassport }
 
       <div className="cards pad">
         {CARDS.map((c) => (
-          <button key={c.name} className="mcard" onClick={onOpenDetail}>
+          <button key={c.name} className="mcard" onClick={() => onOpenMountain(c.ko)}>
             <div className="art">
               {c.art}
               <span className="badge">{t(c.match)}</span>

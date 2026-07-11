@@ -8,7 +8,7 @@ import { SEOUL, distKm, mapUrl } from "@/lib/geo";
 interface Props {
   lang: Lang;
   mountains: Mountain[];
-  onOpenDetail: () => void;
+  onOpenDetail: (m: Mountain) => void;
 }
 
 type RegionFilter = Region | "all";
@@ -125,9 +125,9 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
             className={`mrow${m.got ? " got" : ""}`}
             role="button"
             tabIndex={0}
-            onClick={onOpenDetail}
+            onClick={() => onOpenDetail(m)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onOpenDetail();
+              if (e.key === "Enter") onOpenDetail(m);
             }}
           >
             <span className="dot">⛰</span>

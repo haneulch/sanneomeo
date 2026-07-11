@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Lang } from "@/lib/types";
+import type { Lang, Mountain } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
+import { mapUrl } from "@/lib/geo";
+import { TEMPLE_QUERY } from "@/data/temple-map";
 
 interface Props {
   lang: Lang;
+  mountain: Mountain;
   onBack: () => void;
   onStamp: () => void;
 }
-
-const DAEDUNSAN_MAP_URL =
-  "https://www.google.com/maps/search/?api=1&query=" +
-  encodeURIComponent("대둔산 Daedunsan South Korea");
 
 interface Temple {
   name: string;
@@ -34,38 +33,50 @@ interface Nearby {
   distM: number;
 }
 
-export default function Detail({ lang, onBack, onStamp }: Props) {
+const YDS: Record<Mountain["d"], string> = {
+  easy: "YDS Class 1",
+  mod: "YDS Class 2",
+  hard: "YDS Class 3",
+};
+
+export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const t = makeT(lang);
   const [temple, setTemple] = useState<Temple | null>(null);
   const [safety, setSafety] = useState<Safety | null>(null);
   const [nearby, setNearby] = useState<Nearby[]>([]);
 
   useEffect(() => {
-    // 대둔산 좌표 기반 일몰·기상 실황(기상청)·입산통제
-    fetch("/api/safety?lat=36.122&lng=127.322")
+    setSafety(null);
+    setNearby([]);
+    setTemple(null);
+    if (!m.lat || !m.lng) return;
+
+    fetch(`/api/safety?lat=${m.lat}&lng=${m.lng}`)
       .then((r) => r.json())
       .then(setSafety)
       .catch(() => setSafety(null));
-    // TourAPI 주변 관광지 (키 없으면 빈 배열 → 섹션 숨김)
-    fetch("/api/nearby?lat=36.122&lng=127.322")
+
+    fetch(`/api/nearby?lat=${m.lat}&lng=${m.lng}`)
       .then((r) => r.json())
       .then((d) => setNearby(d.items ?? []))
       .catch(() => setNearby([]));
-  }, []);
 
-  useEffect(() => {
-    // 대둔산 태고사(충남 금산 진산면) 유래·연혁 — 행안부 전통사찰 데이터
-    fetch("/api/temples?q=태고사&addr=금산군")
-      .then((r) => r.json())
-      .then((d) => {
-        const items: Temple[] = d.items ?? [];
-        const best = items
-          .slice()
-          .sort((a, b) => b.history.length - a.history.length)[0];
-        setTemple(best ?? null);
-      })
-      .catch(() => setTemple(null));
-  }, []);
+    const tq = TEMPLE_QUERY[m.ko];
+    if (tq) {
+      fetch(`/api/temples?q=${encodeURIComponent(tq.q)}&addr=${encodeURIComponent(tq.addr)}`)
+        .then((r) => r.json())
+        .then((d) => {
+          const items: Temple[] = d.items ?? [];
+          const best = items.slice().sort((a, b) => b.history.length - a.history.length)[0];
+          setTemple(best ?? null);
+        })
+        .catch(() => setTemple(null));
+    }
+  }, [m]);
+
+  const isDaedunsan = m.ko === "대둔산";
+  const title = lang === "en" ? `${m.en} ${m.ko}` : m[lang];
+  const distKmRT = (m.h * 2).toFixed(1);
 
   const transit = [
     { ico: "🚄", title: "t1", sub: "t1s" },
@@ -104,27 +115,29 @@ export default function Detail({ lang, onBack, onStamp }: Props) {
           </defs>
         </svg>
         <div className="title">
-          <b>{t("m1Name")}</b>
-          <span>{t("dSub")}</span>
+          <b>{title}</b>
+          <span>
+            {t(`rg_${m.r}`)} · {m.elev.toLocaleString()} m
+          </span>
         </div>
       </div>
 
       <div className="stats">
         <div className="stat">
-          <b>{t("diffMod")}</b>
-          <span>YDS Class 2</span>
+          <b>{t(`df_${m.d}`)}</b>
+          <span>{YDS[m.d]}</span>
         </div>
         <div className="stat">
-          <b className="num">3.5 h</b>
+          <b className="num">{m.h} h</b>
           <span>{t("stRound")}</span>
         </div>
         <div className="stat">
-          <b className="num">7.1 km</b>
+          <b className="num">≈ {distKmRT} km</b>
           <span>{t("stDist")}</span>
         </div>
       </div>
 
-      <a className="dmap" href={DAEDUNSAN_MAP_URL} target="_blank" rel="noopener noreferrer">
+      <a className="dmap" href={mapUrl(m)} target="_blank" rel="noopener noreferrer">
         <span>📍</span>
         <span>{t("dMap")}</span>
       </a>
@@ -166,31 +179,35 @@ export default function Detail({ lang, onBack, onStamp }: Props) {
         </div>
       </div>
 
-      <div className="panel">
-        <h3>{t("pnTransit")}</h3>
-        {transit.map((s) => (
-          <div key={s.title} className="step">
-            <span className="ico">{s.ico}</span>
-            <div>
-              <b>{t(s.title)}</b>
-              <small>{t(s.sub)}</small>
+      {isDaedunsan && (
+        <div className="panel">
+          <h3>{t("pnTransit")}</h3>
+          {transit.map((s) => (
+            <div key={s.title} className="step">
+              <span className="ico">{s.ico}</span>
+              <div>
+                <b>{t(s.title)}</b>
+                <small>{t(s.sub)}</small>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      <div className="panel">
-        <h3>{t("pnAfter")}</h3>
-        {after.map((s) => (
-          <div key={s.title} className="step">
-            <span className="ico">{s.ico}</span>
-            <div>
-              <b>{t(s.title)}</b>
-              <small>{t(s.sub)}</small>
+      {isDaedunsan && (
+        <div className="panel">
+          <h3>{t("pnAfter")}</h3>
+          {after.map((s) => (
+            <div key={s.title} className="step">
+              <span className="ico">{s.ico}</span>
+              <div>
+                <b>{t(s.title)}</b>
+                <small>{t(s.sub)}</small>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {nearby.length > 0 && (
         <div className="panel">
