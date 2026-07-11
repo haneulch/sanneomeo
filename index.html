@@ -1,0 +1,1258 @@
+<title>산너머 SanNeomeo — Mobile Prototype</title>
+<style>
+  :root{
+    --paper:#F5F5EF;
+    --card:#FFFFFF;
+    --ink:#1D2A23;
+    --ink-soft:#54655B;
+    --pine:#2C5943;
+    --pine-deep:#1E3F30;
+    --moss:#8FAE93;
+    --mist:#E4E9E2;
+    --amber:#D99A3D;
+    --amber-soft:#F4E7CF;
+    --line:#DDE3DA;
+    --shadow:0 8px 28px rgba(29,42,35,.10);
+    --r:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#131B16;
+      --card:#1C2620;
+      --ink:#EDF1EC;
+      --ink-soft:#9FB0A5;
+      --pine:#7FB79A;
+      --pine-deep:#0F241A;
+      --moss:#5C7A63;
+      --mist:#233029;
+      --amber:#E2AC58;
+      --amber-soft:#3A2F1C;
+      --line:#2C3A32;
+      --shadow:0 8px 28px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#F5F5EF; --card:#FFFFFF; --ink:#1D2A23; --ink-soft:#54655B;
+    --pine:#2C5943; --pine-deep:#1E3F30; --moss:#8FAE93; --mist:#E4E9E2;
+    --amber:#D99A3D; --amber-soft:#F4E7CF; --line:#DDE3DA;
+    --shadow:0 8px 28px rgba(29,42,35,.10);
+  }
+  :root[data-theme="dark"]{
+    --paper:#131B16; --card:#1C2620; --ink:#EDF1EC; --ink-soft:#9FB0A5;
+    --pine:#7FB79A; --pine-deep:#0F241A; --moss:#5C7A63; --mist:#233029;
+    --amber:#E2AC58; --amber-soft:#3A2F1C; --line:#2C3A32;
+    --shadow:0 8px 28px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{background:var(--paper)}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",
+      "Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Yu Gothic",
+      "PingFang SC","Microsoft YaHei",Arial,sans-serif;
+    color:var(--ink);
+    display:flex; justify-content:center;
+    min-height:100vh;
+  }
+  button{font:inherit; color:inherit; background:none; border:none; cursor:pointer}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--amber); outline-offset:2px; border-radius:6px}
+
+  /* ===== phone frame ===== */
+  .phone{
+    width:100%; max-width:414px;
+    min-height:100vh;
+    background:var(--paper);
+    position:relative;
+    display:flex; flex-direction:column;
+    box-shadow:0 0 0 1px var(--line);
+  }
+  .screen{display:none; flex:1; overflow-y:auto; padding-bottom:96px}
+  .screen.active{display:block}
+
+  /* ===== shared ===== */
+  .pad{padding:0 20px}
+  .eyebrow{
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--pine); font-weight:700;
+  }
+  h2.sec{
+    font-size:19px; font-weight:800; letter-spacing:-.01em;
+    margin:6px 0 14px; text-wrap:balance;
+  }
+  .chip{
+    display:inline-block; font-size:11.5px; font-weight:600;
+    padding:4px 10px; border-radius:999px;
+    background:var(--mist); color:var(--ink-soft);
+  }
+  .chip.on{background:var(--pine); color:var(--paper)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ===== header / hero ===== */
+  header.hero{
+    background:var(--pine-deep);
+    color:#F2F5EF;
+    padding:26px 20px 0;
+    position:relative; overflow:visible;
+  }
+  .brand{display:flex; align-items:baseline; gap:8px}
+  .brand .kr{font-size:24px; font-weight:800; letter-spacing:-.02em}
+  .brand .en{font-size:12px; letter-spacing:.22em; text-transform:uppercase; opacity:.75; font-weight:600}
+  .hero p.tag{font-size:13px; opacity:.72; margin-top:6px; max-width:30ch}
+  .hero svg.ridge{display:block; width:100%; height:110px; margin-top:14px}
+
+  /* lang switcher */
+  .langbox{position:absolute; top:26px; right:20px; z-index:30}
+  .langbtn{
+    font-size:11.5px; font-weight:700; letter-spacing:.06em;
+    border:1px solid rgba(255,255,255,.35); border-radius:999px;
+    padding:5px 11px; color:#F2F5EF;
+  }
+  .langmenu{
+    display:none; position:absolute; right:0; top:34px;
+    background:var(--card); border-radius:12px; box-shadow:var(--shadow);
+    overflow:hidden; min-width:118px; border:1px solid var(--line);
+  }
+  .langmenu.open{display:block}
+  .langmenu button{
+    display:block; width:100%; text-align:left;
+    padding:10px 14px; font-size:13px; font-weight:600; color:var(--ink);
+  }
+  .langmenu button:hover{background:var(--mist)}
+  .langmenu button.on{color:var(--pine); font-weight:800}
+
+  /* ===== taste bar ===== */
+  .taste{
+    margin:-26px 20px 0; position:relative; z-index:2;
+    background:var(--card); border-radius:var(--r);
+    box-shadow:var(--shadow); padding:16px;
+  }
+  .taste .q{font-size:13.5px; font-weight:700; margin-bottom:10px}
+  .taste .row{display:flex; flex-wrap:wrap; gap:7px}
+
+  /* ===== 100 mountains banner ===== */
+  .banner100{
+    margin:14px 20px 0; width:calc(100% - 40px);
+    display:flex; align-items:center; gap:12px; text-align:left;
+    background:var(--pine-deep); color:#EFF4EC;
+    border-radius:14px; padding:13px 15px;
+  }
+  .banner100 .pk{font-size:22px}
+  .banner100 b{font-size:13px; display:block}
+  .banner100 small{font-size:11.5px; opacity:.75}
+  .banner100 .go{margin-left:auto; font-size:16px; opacity:.7}
+
+  /* ===== mountain cards ===== */
+  .cards{display:flex; flex-direction:column; gap:14px; margin-top:14px}
+  .mcard{
+    width:100%; text-align:left;
+    background:var(--card); border-radius:var(--r);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .mcard .art{height:96px; position:relative}
+  .mcard .art svg{display:block; width:100%; height:100%}
+  .mcard .art .badge{
+    position:absolute; top:10px; left:12px;
+    font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    background:rgba(20,32,25,.55); color:#fff;
+    padding:4px 9px; border-radius:999px; backdrop-filter:blur(4px);
+  }
+  .mcard .art .m100{
+    position:absolute; top:10px; right:12px;
+    font-size:10px; font-weight:800; letter-spacing:.06em;
+    background:var(--amber); color:#2A1F0C;
+    padding:4px 8px; border-radius:999px;
+  }
+  .mcard .body{padding:14px 16px 16px}
+  .mcard .name{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+  .mcard .name b{font-size:16.5px; letter-spacing:-.01em}
+  .mcard .name span{font-size:12px; color:var(--ink-soft)}
+  .mcard .meta{
+    display:flex; gap:14px; margin-top:8px; flex-wrap:wrap;
+    font-size:12px; color:var(--ink-soft); font-weight:600;
+  }
+  .mcard .meta i{font-style:normal; color:var(--pine); font-weight:800}
+  .mcard .why{
+    margin-top:10px; font-size:12.5px; line-height:1.55; color:var(--ink-soft);
+    border-left:3px solid var(--moss); padding-left:10px;
+  }
+
+  /* ===== detail screen ===== */
+  .back{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:13px; font-weight:700; color:var(--pine);
+    padding:16px 20px 6px;
+  }
+  .detail-hero{position:relative}
+  .detail-hero svg{display:block; width:100%; height:170px}
+  .detail-hero .title{
+    position:absolute; left:20px; bottom:14px; color:#F4F7F2;
+  }
+  .detail-hero .title b{font-size:26px; letter-spacing:-.02em; display:block}
+  .detail-hero .title span{font-size:12.5px; opacity:.85}
+  .stats{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    margin:16px 20px 0;
+  }
+  .stat{
+    background:var(--card); border-radius:14px; padding:12px 10px;
+    text-align:center; box-shadow:var(--shadow);
+  }
+  .stat b{display:block; font-size:15px}
+  .stat span{font-size:10.5px; color:var(--ink-soft); letter-spacing:.08em; text-transform:uppercase; font-weight:700}
+  .panel{
+    background:var(--card); border-radius:var(--r); box-shadow:var(--shadow);
+    margin:14px 20px 0; padding:16px;
+  }
+  .panel h3{font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--pine); margin-bottom:10px}
+  .step{display:flex; gap:12px; padding:9px 0; border-bottom:1px dashed var(--line); font-size:13px; line-height:1.45}
+  .step:last-child{border-bottom:none; padding-bottom:0}
+  .step .ico{
+    flex:0 0 30px; height:30px; border-radius:9px;
+    background:var(--mist); display:flex; align-items:center; justify-content:center;
+    font-size:14px;
+  }
+  .step b{display:block; font-size:13px}
+  .step small{color:var(--ink-soft); font-size:12px}
+  .local-note{
+    margin:16px 20px 0; padding:13px 15px;
+    background:var(--amber-soft); border-radius:14px;
+    font-size:12.5px; line-height:1.55; color:var(--ink);
+  }
+  .local-note b{color:var(--amber)}
+  .cta{
+    display:block; margin:18px 20px 24px; width:calc(100% - 40px);
+    background:var(--pine); color:var(--paper);
+    font-size:15px; font-weight:800; letter-spacing:.02em;
+    padding:15px; border-radius:14px; text-align:center;
+  }
+
+  /* ===== passport ===== */
+  .pass-head{padding:26px 20px 4px}
+  .pass-head h1{font-size:22px; font-weight:800; letter-spacing:-.01em}
+  .pass-head p{font-size:13px; color:var(--ink-soft); margin-top:4px}
+
+  .hundred{
+    margin:16px 20px 0; background:var(--card); border-radius:var(--r);
+    box-shadow:var(--shadow); padding:18px 16px;
+    border-top:4px solid var(--amber);
+  }
+  .hundred .top{display:flex; justify-content:space-between; align-items:baseline}
+  .hundred b.t{font-size:15px}
+  .hundred .cnt{font-size:14px; color:var(--amber); font-weight:800}
+  .hundred p{font-size:12px; color:var(--ink-soft); margin-top:9px; line-height:1.55}
+
+  .stampgrid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+    margin:16px 20px 0;
+  }
+  .stamp{
+    aspect-ratio:1; border-radius:50%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:2px; padding:6px;
+  }
+  .stamp.got{
+    background:var(--card); box-shadow:var(--shadow);
+    border:2px solid var(--amber);
+  }
+  .stamp.got .pk{font-size:22px}
+  .stamp.got b{font-size:11px; letter-spacing:-.01em}
+  .stamp.got small{font-size:9px; color:var(--amber); font-weight:800; letter-spacing:.06em}
+  .stamp.empty{border:2px dashed var(--line); color:var(--ink-soft)}
+  .stamp.empty span{font-size:10.5px; font-weight:600}
+  .bar{height:8px; background:var(--mist); border-radius:99px; margin-top:10px; overflow:hidden}
+  .bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--moss),var(--pine))}
+  .bar.gold i{background:linear-gradient(90deg,var(--amber),#B87A24)}
+  .challenge{
+    background:var(--card); border-radius:var(--r); box-shadow:var(--shadow);
+    margin:18px 20px 0; padding:16px;
+  }
+  .challenge .top{display:flex; justify-content:space-between; align-items:baseline}
+  .challenge b{font-size:14.5px}
+  .challenge .cnt{font-size:12.5px; color:var(--pine); font-weight:800}
+  .challenge p{font-size:12px; color:var(--ink-soft); margin-top:9px; line-height:1.5}
+  .coupon{
+    margin:14px 20px 0; display:flex; align-items:center; gap:13px;
+    background:var(--card); border-radius:var(--r); box-shadow:var(--shadow);
+    padding:14px 16px; border-left:5px solid var(--amber);
+  }
+  .coupon .pct{font-size:20px; font-weight:800; color:var(--amber); flex:0 0 auto}
+  .coupon b{font-size:13.5px; display:block}
+  .coupon small{font-size:11.5px; color:var(--ink-soft)}
+
+  /* ===== badges ===== */
+  .sechead{padding:24px 20px 0}
+  .badgerow{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+    margin:14px 20px 0;
+  }
+  .bdg{
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    text-align:center;
+  }
+  .bdg .medal{
+    width:58px; height:58px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+  }
+  .bdg.earned .medal{
+    background:linear-gradient(160deg,var(--amber),#B87A24);
+    box-shadow:var(--shadow);
+  }
+  .bdg.locked .medal{
+    border:2px dashed var(--line); color:var(--ink-soft);
+    font-size:17px; opacity:.75;
+  }
+  .bdg b{font-size:10.5px; letter-spacing:-.01em; line-height:1.25}
+  .bdg small{font-size:9px; font-weight:800; letter-spacing:.06em; color:var(--amber)}
+  .bdg.locked b{color:var(--ink-soft)}
+  .bdg.locked small{color:var(--ink-soft); font-weight:600}
+
+  .challenge .reward{
+    display:flex; align-items:center; gap:7px;
+    margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);
+    font-size:11.5px; font-weight:700; color:var(--amber);
+  }
+  .challenge.done{border:2px solid var(--amber)}
+  .challenge .donechip{
+    font-size:10px; font-weight:800; letter-spacing:.08em;
+    background:var(--amber); color:#2A1F0C;
+    padding:3px 8px; border-radius:999px;
+  }
+
+  /* hidden badge */
+  .bdg.mystery .medal{
+    background:linear-gradient(160deg,#453A63,#1C1830);
+    color:#C9B8F0; font-size:22px; font-weight:800;
+    box-shadow:var(--shadow);
+  }
+  .bdg.mystery b{color:var(--ink-soft)}
+  .bdg.mystery small{color:#8E7CC3; font-weight:800}
+  .hiddenhint{
+    margin:14px 20px 0; display:flex; gap:11px; align-items:flex-start;
+    background:linear-gradient(160deg,#2A2440,#1C1830); color:#D8CFF0;
+    border-radius:14px; padding:13px 15px;
+    font-size:12px; line-height:1.55;
+  }
+  .hiddenhint .em{font-size:18px; line-height:1.3}
+  .hiddenhint b{color:#EDE6FF}
+
+  /* ===== onboarding ===== */
+  .ob-hero{
+    background:var(--pine-deep); color:#F2F5EF;
+    padding:28px 20px 20px;
+  }
+  .ob-hero .brand{margin-bottom:12px}
+  .ob-hero h1{font-size:21px; font-weight:800; letter-spacing:-.01em; text-wrap:balance}
+  .ob-hero p{font-size:12.5px; opacity:.72; margin-top:6px; max-width:34ch}
+  .oblang{display:flex; gap:6px; margin-top:16px}
+  .oblang button{
+    font-size:11px; font-weight:700; padding:5px 11px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.3); color:#F2F5EF;
+  }
+  .oblang button.on{background:#F2F5EF; color:#1E3F30; border-color:#F2F5EF}
+  .ob-q{margin:22px 20px 0}
+  .ob-q h3{font-size:14px; font-weight:800; margin-bottom:10px}
+  .ob-q h3 .stepnum{
+    display:inline-flex; width:20px; height:20px; border-radius:50%;
+    background:var(--pine); color:var(--paper);
+    align-items:center; justify-content:center;
+    font-size:11px; margin-right:7px; vertical-align:-3px;
+  }
+  .optcard{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    background:var(--card); border:2px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:8px;
+  }
+  .optcard.on{border-color:var(--pine); background:var(--mist)}
+  .optcard .em{font-size:20px}
+  .optcard b{font-size:13.5px; display:block}
+  .optcard small{font-size:11.5px; color:var(--ink-soft)}
+  .chiprow{display:flex; flex-wrap:wrap; gap:7px}
+  .chiprow .chip{cursor:pointer; border:none}
+  .obcta{
+    display:block; margin:24px 20px 8px; width:calc(100% - 40px);
+    background:var(--pine); color:var(--paper);
+    font-size:15px; font-weight:800; letter-spacing:.02em;
+    padding:15px; border-radius:14px; text-align:center;
+  }
+  .obskip{display:block; width:100%; text-align:center; margin:2px 0 28px; font-size:12px; color:var(--ink-soft)}
+  .phone.ob nav.tabbar{display:none}
+
+  /* ===== mountain list ===== */
+  .list-head{padding:26px 20px 0}
+  .list-head h1{font-size:22px; font-weight:800; letter-spacing:-.01em; margin-top:4px}
+  .list-head .cnt{font-size:12.5px; color:var(--ink-soft); margin-top:4px}
+  .fltwrap{margin-top:14px; display:flex; flex-direction:column; gap:8px}
+  .fltrow{
+    display:flex; gap:7px; overflow-x:auto; padding:2px 20px;
+    scrollbar-width:none;
+  }
+  .fltrow::-webkit-scrollbar{display:none}
+  .fltrow .chip{flex:0 0 auto; border:none}
+  .mlist{display:flex; flex-direction:column; gap:10px; margin:16px 20px 0}
+  .mrow{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    background:var(--card); border-radius:14px; box-shadow:var(--shadow);
+    padding:12px 14px;
+  }
+  .mrow .dot{
+    flex:0 0 38px; height:38px; border-radius:12px;
+    background:var(--mist); display:flex; align-items:center; justify-content:center;
+    font-size:17px;
+  }
+  .mrow.got .dot{background:var(--amber-soft)}
+  .mrow .info b{font-size:14px; display:block; letter-spacing:-.01em}
+  .mrow .info small{font-size:11.5px; color:var(--ink-soft)}
+  .mrow .right{margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex:0 0 auto}
+  .pill{font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; letter-spacing:.03em}
+  .pill.easy{background:rgba(76,140,90,.16); color:var(--pine)}
+  .pill.mod{background:rgba(217,154,61,.18); color:var(--amber)}
+  .pill.hard{background:rgba(190,80,60,.16); color:#C96450}
+  .gotchip{font-size:10px; font-weight:800; color:var(--amber)}
+  .mrow{cursor:pointer}
+  .mapbtn{
+    flex:0 0 34px; height:34px; border-radius:10px;
+    background:var(--mist); display:flex; align-items:center; justify-content:center;
+    font-size:15px; text-decoration:none;
+  }
+  .dmap{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin:14px 20px 0; padding:13px;
+    border:2px solid var(--pine); border-radius:14px;
+    color:var(--pine); font-weight:800; font-size:14px; text-decoration:none;
+  }
+
+  /* ===== bottom nav ===== */
+  nav.tabbar{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:414px;
+    background:var(--card);
+    border-top:1px solid var(--line);
+    display:flex; z-index:10;
+    padding:8px 6px calc(10px + env(safe-area-inset-bottom));
+  }
+  .tabbar button{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10.5px; font-weight:700; color:var(--ink-soft);
+    padding:4px 0;
+  }
+  .tabbar button.on{color:var(--pine)}
+  .tabbar .glyph{font-size:19px; line-height:1}
+
+  @media (prefers-reduced-motion: no-preference){
+    .screen.active{animation:fade .22s ease}
+    @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+  }
+</style>
+
+<div class="phone ob" id="phone">
+
+  <!-- ============ ONBOARDING ============ -->
+  <section class="screen active" id="scr-onboard">
+    <div class="ob-hero">
+      <div class="brand"><span class="kr">산너머</span><span class="en">SanNeomeo</span></div>
+      <h1 data-i18n="obTitle"></h1>
+      <p data-i18n="obSub"></p>
+      <div class="oblang">
+        <button data-lang="en" onclick="setLang('en')">English</button>
+        <button data-lang="ko" onclick="setLang('ko')">한국어</button>
+        <button data-lang="ja" onclick="setLang('ja')">日本語</button>
+        <button data-lang="zh" onclick="setLang('zh')">中文</button>
+      </div>
+    </div>
+
+    <div class="ob-q">
+      <h3><span class="stepnum">1</span><span data-i18n="obQ1"></span></h3>
+      <button class="optcard" onclick="pickSingle(this)"><span class="em">🌿</span><span><b data-i18n="obD1"></b><small data-i18n="obD1s"></small></span></button>
+      <button class="optcard on" onclick="pickSingle(this)"><span class="em">⛰</span><span><b data-i18n="obD2"></b><small data-i18n="obD2s"></small></span></button>
+      <button class="optcard" onclick="pickSingle(this)"><span class="em">🧗</span><span><b data-i18n="obD3"></b><small data-i18n="obD3s"></small></span></button>
+    </div>
+
+    <div class="ob-q">
+      <h3><span class="stepnum">2</span><span data-i18n="obQ2"></span></h3>
+      <div class="chiprow">
+        <button class="chip" onclick="pickSingleChip(this)" data-i18n="obT1"></button>
+        <button class="chip on" onclick="pickSingleChip(this)" data-i18n="obT2"></button>
+        <button class="chip" onclick="pickSingleChip(this)" data-i18n="obT3"></button>
+      </div>
+    </div>
+
+    <div class="ob-q">
+      <h3><span class="stepnum">3</span><span data-i18n="obQ3"></span></h3>
+      <div class="chiprow">
+        <button class="chip on" onclick="this.classList.toggle('on')" data-i18n="chipGranite"></button>
+        <button class="chip on" onclick="this.classList.toggle('on')" data-i18n="chipTemple"></button>
+        <button class="chip" onclick="this.classList.toggle('on')" data-i18n="chipFoliage"></button>
+        <button class="chip" onclick="this.classList.toggle('on')" data-i18n="chipSea"></button>
+        <button class="chip" onclick="this.classList.toggle('on')" data-i18n="chipSpring"></button>
+      </div>
+    </div>
+
+    <button class="obcta" onclick="finishOnboard()" data-i18n="obCta"></button>
+    <button class="obskip" onclick="finishOnboard()" data-i18n="obSkip"></button>
+  </section>
+
+  <!-- ============ DISCOVER ============ -->
+  <section class="screen" id="scr-home">
+    <header class="hero">
+      <div class="brand"><span class="kr">산너머</span><span class="en">SanNeomeo</span></div>
+      <p class="tag" data-i18n="tagline"></p>
+      <div class="langbox">
+        <button class="langbtn" id="langbtn" onclick="toggleLang()">EN ▾</button>
+        <div class="langmenu" id="langmenu">
+          <button data-lang="en" onclick="setLang('en')">English</button>
+          <button data-lang="ko" onclick="setLang('ko')">한국어</button>
+          <button data-lang="ja" onclick="setLang('ja')">日本語</button>
+          <button data-lang="zh" onclick="setLang('zh')">中文</button>
+        </div>
+      </div>
+      <svg class="ridge" viewBox="0 0 414 110" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,95 L60,52 L110,80 L170,30 L225,72 L285,42 L340,78 L414,50 L414,110 L0,110 Z" fill="#2C5943" opacity=".55"/>
+        <path d="M0,110 L45,78 L105,96 L160,62 L230,94 L300,66 L360,92 L414,74 L414,110 Z" fill="#8FAE93" opacity=".8"/>
+        <circle cx="330" cy="26" r="11" fill="#D99A3D" opacity=".9"/>
+      </svg>
+    </header>
+
+    <div class="taste">
+      <div class="q" data-i18n="tasteQ"></div>
+      <div class="row">
+        <span class="chip on" data-i18n="chipGranite"></span>
+        <span class="chip on" data-i18n="chipTemple"></span>
+        <span class="chip" data-i18n="chipFoliage"></span>
+        <span class="chip" data-i18n="chipSea"></span>
+        <span class="chip" data-i18n="chipEasy"></span>
+      </div>
+    </div>
+
+    <button class="banner100" onclick="go('pass')">
+      <span class="pk">⛰</span>
+      <span>
+        <b data-i18n="b100Title"></b>
+        <small data-i18n="b100Sub"></small>
+      </span>
+      <span class="go">›</span>
+    </button>
+
+    <div class="pad" style="margin-top:24px">
+      <span class="eyebrow" data-i18n="curated"></span>
+      <h2 class="sec" data-i18n="secTitle"></h2>
+    </div>
+
+    <div class="cards pad">
+      <button class="mcard" onclick="openDetail()">
+        <div class="art">
+          <svg viewBox="0 0 380 96" preserveAspectRatio="none" aria-hidden="true">
+            <rect width="380" height="96" fill="#3E6B52"/>
+            <path d="M0,96 L70,26 L130,70 L200,14 L260,62 L330,34 L380,68 L380,96 Z" fill="#2C5140"/>
+            <path d="M0,96 L55,66 L140,88 L215,58 L300,86 L380,64 L380,96 Z" fill="#1E3F30"/>
+            <circle cx="318" cy="22" r="9" fill="#E8C87D"/>
+          </svg>
+          <span class="badge" data-i18n="match96"></span>
+          <span class="m100" data-i18n="tag100"></span>
+        </div>
+        <div class="body">
+          <div class="name"><b data-i18n="m1Name"></b><span data-i18n="m1Loc"></span></div>
+          <div class="meta">
+            <span><span data-i18n="lblDiff"></span> <i data-i18n="diffMod"></i></span>
+            <span><span data-i18n="lblDur"></span> <i class="num">3.5 h</i></span>
+            <span><span data-i18n="lblTemple"></span> <i data-i18n="m1Temple"></i></span>
+          </div>
+          <p class="why" data-i18n="m1Why"></p>
+        </div>
+      </button>
+
+      <button class="mcard" onclick="openDetail()">
+        <div class="art">
+          <svg viewBox="0 0 380 96" preserveAspectRatio="none" aria-hidden="true">
+            <rect width="380" height="96" fill="#5F7F5E"/>
+            <path d="M0,96 Q95,18 190,58 T380,40 L380,96 Z" fill="#40634A"/>
+            <path d="M0,96 Q120,58 240,80 T380,70 L380,96 Z" fill="#28483A"/>
+            <circle cx="60" cy="24" r="8" fill="#E8C87D"/>
+          </svg>
+          <span class="badge" data-i18n="match92"></span>
+          <span class="m100" data-i18n="tag100"></span>
+        </div>
+        <div class="body">
+          <div class="name"><b data-i18n="m2Name"></b><span data-i18n="m2Loc"></span></div>
+          <div class="meta">
+            <span><span data-i18n="lblDiff"></span> <i data-i18n="diffEasy"></i></span>
+            <span><span data-i18n="lblDur"></span> <i class="num">3 h</i></span>
+            <span><span data-i18n="lblTemple"></span> <i data-i18n="m2Temple"></i></span>
+          </div>
+          <p class="why" data-i18n="m2Why"></p>
+        </div>
+      </button>
+
+      <button class="mcard" onclick="openDetail()">
+        <div class="art">
+          <svg viewBox="0 0 380 96" preserveAspectRatio="none" aria-hidden="true">
+            <rect width="380" height="96" fill="#476B58"/>
+            <path d="M0,96 L90,20 L165,64 L240,30 L320,72 L380,48 L380,96 Z" fill="#31543F"/>
+            <path d="M0,96 L80,70 L180,90 L260,66 L380,88 L380,96 Z" fill="#1E3D2E"/>
+            <circle cx="200" cy="18" r="8" fill="#E8C87D"/>
+          </svg>
+          <span class="badge" data-i18n="match89"></span>
+          <span class="m100" data-i18n="tag100"></span>
+        </div>
+        <div class="body">
+          <div class="name"><b data-i18n="m3Name"></b><span data-i18n="m3Loc"></span></div>
+          <div class="meta">
+            <span><span data-i18n="lblDiff"></span> <i data-i18n="diffMod"></i></span>
+            <span><span data-i18n="lblDur"></span> <i class="num">4 h</i></span>
+            <span><span data-i18n="lblTemple"></span> <i data-i18n="m3Temple"></i></span>
+          </div>
+          <p class="why" data-i18n="m3Why"></p>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ DETAIL ============ -->
+  <section class="screen" id="scr-detail">
+    <button class="back" onclick="closeDetail()" data-i18n="back"></button>
+    <div class="detail-hero">
+      <svg viewBox="0 0 414 170" preserveAspectRatio="none" aria-hidden="true">
+        <rect width="414" height="170" fill="#3E6B52"/>
+        <path d="M0,170 L80,40 L150,120 L225,22 L295,104 L360,58 L414,110 L414,170 Z" fill="#2C5140"/>
+        <path d="M0,170 L60,116 L160,152 L245,100 L330,148 L414,118 L414,170 Z" fill="#1E3F30"/>
+        <circle cx="345" cy="34" r="12" fill="#E8C87D"/>
+        <rect x="0" y="0" width="414" height="170" fill="url(#g1)"/>
+        <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset=".45" stop-color="rgba(0,0,0,0)"/><stop offset="1" stop-color="rgba(10,20,14,.55)"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="title">
+        <b data-i18n="m1Name"></b>
+        <span data-i18n="dSub"></span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b data-i18n="diffMod"></b><span>YDS Class 2</span></div>
+      <div class="stat"><b class="num">3.5 h</b><span data-i18n="stRound"></span></div>
+      <div class="stat"><b class="num">7.1 km</b><span data-i18n="stDist"></span></div>
+    </div>
+
+    <a class="dmap" href="https://www.google.com/maps/search/?api=1&query=%EB%8C%80%EB%91%94%EC%82%B0%20Daedunsan%20South%20Korea"
+       target="_blank" rel="noopener"><span>📍</span><span data-i18n="dMap"></span></a>
+
+    <div class="panel">
+      <h3 data-i18n="pnTransit"></h3>
+      <div class="step"><span class="ico">🚄</span><div><b data-i18n="t1"></b><small data-i18n="t1s"></small></div></div>
+      <div class="step"><span class="ico">🚌</span><div><b data-i18n="t2"></b><small data-i18n="t2s"></small></div></div>
+      <div class="step"><span class="ico">⚠️</span><div><b data-i18n="t3"></b><small data-i18n="t3s"></small></div></div>
+    </div>
+
+    <div class="panel">
+      <h3 data-i18n="pnAfter"></h3>
+      <div class="step"><span class="ico">🏯</span><div><b data-i18n="a1"></b><small data-i18n="a1s"></small></div></div>
+      <div class="step"><span class="ico">🍜</span><div><b data-i18n="a2"></b><small data-i18n="a2s"></small></div></div>
+      <div class="step"><span class="ico">♨️</span><div><b data-i18n="a3"></b><small data-i18n="a3s"></small></div></div>
+    </div>
+
+    <div class="local-note" data-i18n="localNote"></div>
+
+    <button class="cta" onclick="goPassport()" data-i18n="cta"></button>
+  </section>
+
+  <!-- ============ PASSPORT ============ -->
+  <section class="screen" id="scr-pass">
+    <div class="pass-head">
+      <span class="eyebrow" data-i18n="ppEyebrow"></span>
+      <h1 data-i18n="ppTitle"></h1>
+      <p data-i18n="ppSummary"></p>
+    </div>
+
+    <div class="hundred">
+      <div class="top"><b class="t" data-i18n="h100Title"></b><span class="cnt num">4 / 100</span></div>
+      <div class="bar gold"><i style="width:4%"></i></div>
+      <p data-i18n="h100Desc"></p>
+    </div>
+
+    <div class="stampgrid">
+      <div class="stamp got"><span class="pk">⛰</span><b data-i18n="sDaedun"></b><small>JUN 28</small></div>
+      <div class="stamp got"><span class="pk">🏯</span><b data-i18n="sSeonun"></b><small>JUL 02</small></div>
+      <div class="stamp got"><span class="pk">⛰</span><b data-i18n="sMoak"></b><small>JUL 05</small></div>
+      <div class="stamp got"><span class="pk">⛰</span><b data-i18n="sNaejang"></b><small>JUL 09</small></div>
+      <div class="stamp empty"><span data-i18n="sBaegam"></span></div>
+      <div class="stamp empty"><span data-i18n="sMore"></span></div>
+    </div>
+
+    <!-- badges -->
+    <div class="sechead">
+      <span class="eyebrow" data-i18n="bdgEyebrow"></span>
+      <h2 class="sec" style="margin-bottom:0" data-i18n="bdgTitle"></h2>
+    </div>
+    <div class="badgerow">
+      <div class="bdg earned"><span class="medal">🥾</span><b data-i18n="bdg1"></b><small>JUN 28</small></div>
+      <div class="bdg earned"><span class="medal">💎</span><b data-i18n="bdg2"></b><small>JUL 05</small></div>
+      <div class="bdg locked"><span class="medal">🔒</span><b data-i18n="bdg3"></b><small data-i18n="bdgLocked"></small></div>
+      <div class="bdg locked"><span class="medal">🔒</span><b data-i18n="bdg4"></b><small data-i18n="bdgLocked"></small></div>
+      <div class="bdg mystery"><span class="medal">?</span><b>???</b><small data-i18n="bdgHiddenTag"></small></div>
+      <div class="bdg mystery"><span class="medal">?</span><b>???</b><small data-i18n="bdgHiddenTag"></small></div>
+      <div class="bdg mystery"><span class="medal">?</span><b>???</b><small data-i18n="bdgHiddenTag"></small></div>
+    </div>
+
+    <div class="hiddenhint">
+      <span class="em">🔮</span>
+      <span data-i18n="hiddenHint"></span>
+    </div>
+
+    <!-- challenges -->
+    <div class="sechead">
+      <span class="eyebrow" data-i18n="chEyebrow"></span>
+      <h2 class="sec" style="margin-bottom:0" data-i18n="chSecTitle"></h2>
+    </div>
+
+    <div class="challenge done" style="margin-top:14px">
+      <div class="top"><b data-i18n="ch0Title"></b><span class="donechip" data-i18n="chDone"></span></div>
+      <div class="bar"><i style="width:100%"></i></div>
+      <div class="reward"><span>🥾</span><span data-i18n="ch0Rw"></span></div>
+    </div>
+
+    <div class="challenge">
+      <div class="top"><b data-i18n="chTitle"></b><span class="cnt num">4 / 5</span></div>
+      <div class="bar"><i style="width:80%"></i></div>
+      <p data-i18n="chDesc"></p>
+      <div class="reward"><span>🏅</span><span data-i18n="chRw"></span></div>
+    </div>
+
+    <div class="challenge">
+      <div class="top"><b data-i18n="ch2Title"></b><span class="cnt num">2 / 3</span></div>
+      <div class="bar"><i style="width:66%"></i></div>
+      <p data-i18n="ch2Desc"></p>
+      <div class="reward"><span>🏯</span><span data-i18n="ch2Rw"></span></div>
+    </div>
+
+    <div class="challenge">
+      <div class="top"><b data-i18n="ch3Title"></b><span class="cnt num">4 / 100</span></div>
+      <div class="bar gold"><i style="width:4%"></i></div>
+      <p data-i18n="ch3Desc"></p>
+      <div class="reward"><span>👑</span><span data-i18n="ch3Rw"></span></div>
+    </div>
+
+    <div class="coupon" style="margin-top:20px">
+      <span class="pct num">10%</span>
+      <div><b data-i18n="c1"></b><small data-i18n="c1s"></small></div>
+    </div>
+    <div class="coupon" style="margin-bottom:8px">
+      <span class="pct num">15%</span>
+      <div><b data-i18n="c2"></b><small data-i18n="c2s"></small></div>
+    </div>
+  </section>
+
+  <!-- ============ MOUNTAIN LIST ============ -->
+  <section class="screen" id="scr-list">
+    <div class="list-head">
+      <span class="eyebrow" data-i18n="lsEyebrow"></span>
+      <h1 data-i18n="lsTitle"></h1>
+      <p class="cnt num" id="mcount"></p>
+    </div>
+    <div class="fltwrap">
+      <div class="fltrow" id="flt-region">
+        <button class="chip on" onclick="setRegion('all',this)" data-i18n="rg_all"></button>
+        <button class="chip" onclick="setRegion('seoul',this)" data-i18n="rg_seoul"></button>
+        <button class="chip" onclick="setRegion('gangwon',this)" data-i18n="rg_gangwon"></button>
+        <button class="chip" onclick="setRegion('chungcheong',this)" data-i18n="rg_chungcheong"></button>
+        <button class="chip" onclick="setRegion('jeolla',this)" data-i18n="rg_jeolla"></button>
+        <button class="chip" onclick="setRegion('gyeongsang',this)" data-i18n="rg_gyeongsang"></button>
+        <button class="chip" onclick="setRegion('jeju',this)" data-i18n="rg_jeju"></button>
+      </div>
+      <div class="fltrow" id="flt-diff">
+        <button class="chip on" onclick="setDiff('all',this)" data-i18n="rg_all"></button>
+        <button class="chip" onclick="setDiff('easy',this)" data-i18n="df_easy"></button>
+        <button class="chip" onclick="setDiff('mod',this)" data-i18n="df_mod"></button>
+        <button class="chip" onclick="setDiff('hard',this)" data-i18n="df_hard"></button>
+      </div>
+      <div class="fltrow" id="flt-sort">
+        <button class="chip on" onclick="setSort('rec',this)" data-i18n="srtRec"></button>
+        <button class="chip" onclick="setSort('dist',this)" data-i18n="srtDist"></button>
+        <button class="chip" onclick="setSort('elev',this)" data-i18n="srtElev"></button>
+      </div>
+    </div>
+    <div class="mlist" id="mlist"></div>
+  </section>
+
+  <!-- ============ NAV ============ -->
+  <nav class="tabbar">
+    <button class="on" id="tab-home" onclick="go('home')"><span class="glyph">⛰</span><span data-i18n="tbDiscover"></span></button>
+    <button id="tab-list" onclick="go('list')"><span class="glyph">🗺</span><span data-i18n="tbList"></span></button>
+    <button id="tab-pass" onclick="go('pass')"><span class="glyph">📖</span><span data-i18n="tbPassport"></span></button>
+  </nav>
+</div>
+
+<script>
+  const I18N = {
+    en: {
+      tagline:"Beyond the famous peaks, into the heart of Korea.",
+      tasteQ:"What kind of hike do you love?",
+      chipGranite:"Granite ridges", chipTemple:"Temple stay", chipFoliage:"Autumn foliage",
+      chipSea:"Sea views", chipEasy:"Easy walks", chipSpring:"Hot springs",
+      obTitle:"Tell us how you hike",
+      obSub:"Three quick questions — we'll match you with mountains you'll love.",
+      obQ1:"How challenging do you like it?",
+      obD1:"Easy", obD1s:"Gentle trails · 2–3 hours",
+      obD2:"Moderate", obD2s:"Some steep sections · 3–5 hours",
+      obD3:"Challenging", obD3s:"Ridges & scrambles · 5+ hours",
+      obQ2:"How long is your hiking day?",
+      obT1:"Half day", obT2:"Full day", obT3:"Overnight trip",
+      obQ3:"What do you want on the trail?",
+      obCta:"Show my mountains ⛰", obSkip:"Skip for now",
+      bdgHiddenTag:"Hidden",
+      hiddenHint:"<b>Hidden badges.</b> Seven secret mountains across Korea hold hidden badges — no list, no map. They reveal themselves only when you stamp there.",
+      b100Title:"Korea's 100 Famous Mountains Stamp Tour",
+      b100Sub:"4 of 100 collected — view your passport",
+      curated:"Curated for you",
+      secTitle:"Because you loved Seoraksan —<br>meet its hidden cousins",
+      match96:"96% taste match", match92:"92% taste match", match89:"89% taste match",
+      tag100:"TOP 100",
+      lblDiff:"Difficulty", lblDur:"Duration", lblTemple:"Temple",
+      diffMod:"Moderate", diffEasy:"Easy+",
+      m1Name:"Daedunsan 대둔산", m1Loc:"Wanju, Jeonbuk", m1Temple:"Taego-sa",
+      m1Why:"Granite spires and a cloud-bridge ridge walk — the same drama as Seoraksan, without the crowds. Cable car available.",
+      m2Name:"Seonunsan 선운산", m2Loc:"Gochang, Jeonbuk", m2Temple:"Seonun-sa",
+      m2Why:"A 1,400-year-old temple valley famous for camellia forests. Gentle ridges, quiet trails, and a renowned temple-stay program.",
+      m3Name:"Moaksan 모악산", m3Loc:"Jeonju-Gimje, Jeonbuk", m3Temple:"Geumsan-sa",
+      m3Why:"Home to Geumsan-sa, a National Treasure temple. Finish the hike 30 minutes from Jeonju Hanok Village's food scene.",
+      back:"← Back to Discover",
+      dSub:"Wanju-gun, Jeollabuk-do · 878 m",
+      dMap:"Open in Google Maps",
+      stRound:"Round trip", stDist:"Distance",
+      pnTransit:"Getting there — no car needed",
+      t1:"KTX to Daejeon Station", t1s:"From Seoul · 1 h · every 20 min",
+      t2:"Bus #34 from Daejeon Seobu Terminal", t2s:"50 min · ₩2,500 · pay with T-money",
+      t3:"Last bus back: 19:40", t3s:"Taxi to Daejeon ≈ ₩38,000 if you miss it",
+      pnAfter:"After the hike — local course",
+      a1:"Taego-sa Temple", a1s:"Cliff-side temple on the descent trail · free",
+      a2:"Halmae Dotori-muk House", a2s:"Acorn jelly & mountain herbs · partner store 10% off",
+      a3:"Daedun Mountain Hot Spring", a3s:"Perfect post-hike soak · 5 min by taxi",
+      localNote:"<b>Your visit stays local.</b> Partner stores on this course are run by Wanju residents — every stamp you collect helps the county map what travelers love, and plan better trails.",
+      cta:"Start hike & collect stamp ⛰",
+      ppEyebrow:"Trail Passport", ppTitle:"Emma's Passport",
+      ppSummary:"4 peaks · 2 temples · 2 badges earned",
+      h100Title:"Korea's 100 Famous Mountains",
+      h100Desc:"Official list by the Korea Forest Service. Collect all 100 GPS stamps to become a Grand Finisher — hidden regional peaks earn double points.",
+      sDaedun:"Daedunsan", sSeonun:"Seonun-sa", sMoak:"Moaksan", sNaejang:"Naejangsan",
+      sBaegam:"Baegamsan", sMore:"+ Explore",
+      bdgEyebrow:"Badge Collection", bdgTitle:"Badges you've earned",
+      bdg1:"First Summit", bdg2:"Hidden Gem", bdg3:"Jeonbuk Finisher", bdg4:"Grand Finisher",
+      bdgLocked:"Locked",
+      chEyebrow:"Challenges", chSecTitle:"Complete challenges, earn badges",
+      chDone:"COMPLETED",
+      ch0Title:"First Summit", ch0Rw:"First Summit badge earned — your journey begins!",
+      chTitle:"Jeonbuk 5 Peaks Challenge",
+      chDesc:"One more peak to finish — Baegamsan is waiting.",
+      chRw:"Reward: Jeonbuk Finisher badge + free temple stay night in Wanju",
+      ch2Title:"Thousand-Year Temples",
+      ch2Desc:"Visit 3 ancient temples over 1,000 years old. Geumsan-sa would complete it.",
+      ch2Rw:"Reward: Temple Pilgrim badge + temple-stay 20% coupon",
+      ch3Title:"100 Famous Mountains",
+      ch3Desc:"The ultimate journey — all 100 peaks across Korea. Hidden regional peaks count double.",
+      ch3Rw:"Reward: Grand Finisher badge + Hall of Fame entry",
+      c1:"Halmae Dotori-muk House", c1s:"Unlocked by your Daedunsan stamp · Wanju",
+      c2:"Seonunsan Camellia Guesthouse", c2s:"Unlocked by your Seonun-sa stamp · Gochang",
+      tbDiscover:"Discover", tbPassport:"Passport", tbList:"Mountains", tbMe:"Me",
+      lsEyebrow:"All Mountains", lsTitle:"Where will you go next?",
+      cntSuffix:"mountains found", stamped:"✓ Stamped",
+      rg_all:"All", rg_seoul:"Seoul·Gyeonggi", rg_gangwon:"Gangwon", rg_chungcheong:"Chungcheong",
+      rg_jeolla:"Jeolla", rg_gyeongsang:"Gyeongsang", rg_jeju:"Jeju",
+      df_easy:"Easy", df_mod:"Moderate", df_hard:"Challenging",
+      srtRec:"Recommended", srtDist:"Nearest first", srtElev:"Highest first",
+      locYou:"from your location", locSeoul:"location off — from Seoul",
+      alMe:"Prototype: profile & language settings"
+    },
+    ko: {
+      tagline:"유명한 봉우리 너머, 한국의 속살로.",
+      tasteQ:"어떤 산행을 좋아하세요?",
+      chipGranite:"화강암 능선", chipTemple:"템플스테이", chipFoliage:"단풍",
+      chipSea:"바다 전망", chipEasy:"쉬운 코스", chipSpring:"온천",
+      obTitle:"당신의 산행을 알려주세요",
+      obSub:"세 가지만 답하면 딱 맞는 산을 찾아드립니다.",
+      obQ1:"어느 정도 난이도를 원하세요?",
+      obD1:"쉬움", obD1s:"완만한 길 · 2–3시간",
+      obD2:"보통", obD2s:"가파른 구간 조금 · 3–5시간",
+      obD3:"도전", obD3s:"능선과 암릉 · 5시간 이상",
+      obQ2:"산행 시간은 얼마나?",
+      obT1:"반나절", obT2:"하루", obT3:"1박 2일",
+      obQ3:"산에서 무엇을 원하세요?",
+      obCta:"내 산 찾기 ⛰", obSkip:"나중에 하기",
+      bdgHiddenTag:"히든",
+      hiddenHint:"<b>히든 뱃지.</b> 전국 비밀 명산 7곳에 히든 뱃지가 숨어 있습니다 — 목록도 지도도 없습니다. 그곳에서 스탬프를 찍는 순간에만 공개됩니다.",
+      b100Title:"산림청 100대 명산 스탬프 투어",
+      b100Sub:"100좌 중 4좌 달성 — 패스포트 보기",
+      curated:"맞춤 추천",
+      secTitle:"설악산이 좋았다면 —<br>숨은 명산을 만나보세요",
+      match96:"취향 매칭 96%", match92:"취향 매칭 92%", match89:"취향 매칭 89%",
+      tag100:"100대 명산",
+      lblDiff:"난이도", lblDur:"소요 시간", lblTemple:"사찰",
+      diffMod:"보통", diffEasy:"쉬움+",
+      m1Name:"대둔산", m1Loc:"전북 완주", m1Temple:"태고사",
+      m1Why:"화강암 암봉과 구름다리 능선길 — 설악산의 스릴을 인파 없이. 케이블카 이용 가능.",
+      m2Name:"선운산", m2Loc:"전북 고창", m2Temple:"선운사",
+      m2Why:"동백숲으로 유명한 1,400년 고찰의 계곡. 완만한 능선, 한적한 등산로, 이름난 템플스테이.",
+      m3Name:"모악산", m3Loc:"전북 전주·김제", m3Temple:"금산사",
+      m3Why:"국보 사찰 금산사의 산. 하산 후 30분이면 전주 한옥마을 먹거리 골목.",
+      back:"← 둘러보기로",
+      dSub:"전라북도 완주군 · 878 m",
+      dMap:"구글 지도에서 보기",
+      stRound:"왕복", stDist:"거리",
+      pnTransit:"가는 방법 — 차 없이 OK",
+      t1:"KTX 대전역", t1s:"서울에서 1시간 · 20분 간격",
+      t2:"대전 서부터미널에서 34번 버스", t2s:"50분 · 2,500원 · 티머니 결제",
+      t3:"막차 19:40", t3s:"놓치면 대전까지 택시 약 38,000원",
+      pnAfter:"하산 후 — 지역 코스",
+      a1:"태고사", a1s:"하산길 절벽 위 사찰 · 무료",
+      a2:"할매 도토리묵집", a2s:"도토리묵 & 산나물 · 제휴 매장 10% 할인",
+      a3:"대둔산 온천", a3s:"산행 후 온천욕 · 택시 5분",
+      localNote:"<b>당신의 방문은 지역에 남습니다.</b> 이 코스의 제휴 매장은 완주 주민이 운영합니다 — 스탬프 하나하나가 여행자가 사랑하는 것을 지자체가 파악하고 더 나은 코스를 기획하는 데 쓰입니다.",
+      cta:"산행 시작 & 스탬프 받기 ⛰",
+      ppEyebrow:"트레일 패스포트", ppTitle:"Emma의 패스포트",
+      ppSummary:"4좌 · 사찰 2곳 · 뱃지 2개 획득",
+      h100Title:"산림청 100대 명산",
+      h100Desc:"산림청 공식 선정 목록. GPS 스탬프 100개를 모으면 그랜드 피니셔 — 숨은 지역 명산은 2배 포인트.",
+      sDaedun:"대둔산", sSeonun:"선운사", sMoak:"모악산", sNaejang:"내장산",
+      sBaegam:"백암산", sMore:"+ 더 찾기",
+      bdgEyebrow:"뱃지 컬렉션", bdgTitle:"획득한 뱃지",
+      bdg1:"첫 산행", bdg2:"숨은 보석", bdg3:"전북 피니셔", bdg4:"그랜드 피니셔",
+      bdgLocked:"잠김",
+      chEyebrow:"챌린지", chSecTitle:"챌린지 완성하고 뱃지 모으기",
+      chDone:"완료",
+      ch0Title:"첫 산행", ch0Rw:"첫 산행 뱃지 획득 — 여정의 시작!",
+      chTitle:"전북 5좌 챌린지",
+      chDesc:"한 좌만 더 — 백암산이 기다립니다.",
+      chRw:"보상: 전북 피니셔 뱃지 + 완주 템플스테이 1박 무료",
+      ch2Title:"천년고찰 순례",
+      ch2Desc:"천 년이 넘은 고찰 3곳 방문. 금산사면 완성입니다.",
+      ch2Rw:"보상: 순례자 뱃지 + 템플스테이 20% 쿠폰",
+      ch3Title:"100대 명산 완등",
+      ch3Desc:"궁극의 여정 — 전국 100좌 완등. 숨은 지역 명산은 2배로 카운트.",
+      ch3Rw:"보상: 그랜드 피니셔 뱃지 + 명예의 전당 등재",
+      c1:"할매 도토리묵집", c1s:"대둔산 스탬프로 잠금 해제 · 완주",
+      c2:"선운산 동백 게스트하우스", c2s:"선운사 스탬프로 잠금 해제 · 고창",
+      tbDiscover:"둘러보기", tbPassport:"패스포트", tbList:"산 목록", tbMe:"내 정보",
+      lsEyebrow:"전체 명산", lsTitle:"다음엔 어디로 갈까요?",
+      cntSuffix:"개의 산", stamped:"✓ 스탬프",
+      rg_all:"전체", rg_seoul:"수도권", rg_gangwon:"강원", rg_chungcheong:"충청",
+      rg_jeolla:"전라", rg_gyeongsang:"경상", rg_jeju:"제주",
+      df_easy:"쉬움", df_mod:"보통", df_hard:"도전",
+      srtRec:"추천순", srtDist:"가까운순", srtElev:"높은 고도순",
+      locYou:"현재 위치 기준", locSeoul:"위치 꺼짐 — 서울 기준",
+      alMe:"프로토타입: 프로필 & 언어 설정"
+    },
+    ja: {
+      tagline:"有名な峰の向こう、韓国の奥深くへ。",
+      tasteQ:"どんな登山がお好きですか？",
+      chipGranite:"花崗岩の稜線", chipTemple:"テンプルステイ", chipFoliage:"紅葉",
+      chipSea:"海の眺め", chipEasy:"らくらくコース", chipSpring:"温泉",
+      obTitle:"あなたの登山スタイルを教えてください",
+      obSub:"3つの質問で、ぴったりの山をご提案します。",
+      obQ1:"難易度のお好みは？",
+      obD1:"初級", obD1s:"なだらかな道 · 2〜3時間",
+      obD2:"中級", obD2s:"急な区間も少し · 3〜5時間",
+      obD3:"上級", obD3s:"稜線と岩場 · 5時間以上",
+      obQ2:"山行時間は？",
+      obT1:"半日", obT2:"1日", obT3:"1泊2日",
+      obQ3:"山に求めるものは？",
+      obCta:"私の山を探す ⛰", obSkip:"あとで",
+      bdgHiddenTag:"隠し",
+      hiddenHint:"<b>隠しバッジ。</b>全国7つの秘密の名山に隠しバッジが眠っています — リストも地図もありません。その場でスタンプを押した瞬間だけ姿を現します。",
+      b100Title:"韓国100名山スタンプツアー",
+      b100Sub:"100座中4座達成 — パスポートを見る",
+      curated:"あなたへのおすすめ",
+      secTitle:"雪岳山が好きなら —<br>隠れた名山に出会おう",
+      match96:"好みマッチ 96%", match92:"好みマッチ 92%", match89:"好みマッチ 89%",
+      tag100:"100名山",
+      lblDiff:"難易度", lblDur:"所要時間", lblTemple:"寺院",
+      diffMod:"中級", diffEasy:"初級+",
+      m1Name:"大芚山 テドゥンサン", m1Loc:"全北 完州", m1Temple:"太古寺",
+      m1Why:"花崗岩の岩峰と雲橋の稜線歩き — 雪岳山のスリルを、混雑なしで。ケーブルカーあり。",
+      m2Name:"禅雲山 ソヌンサン", m2Loc:"全北 高敞", m2Temple:"禅雲寺",
+      m2Why:"椿の森で有名な1,400年の古刹の渓谷。なだらかな稜線と静かな登山道、名高いテンプルステイ。",
+      m3Name:"母岳山 モアクサン", m3Loc:"全北 全州・金堤", m3Temple:"金山寺",
+      m3Why:"国宝寺院・金山寺の山。下山後30分で全州韓屋村のグルメ街へ。",
+      back:"← 発見に戻る",
+      dSub:"全羅北道 完州郡 · 878 m",
+      dMap:"Googleマップで見る",
+      stRound:"往復", stDist:"距離",
+      pnTransit:"アクセス — 車なしでOK",
+      t1:"KTXで大田駅へ", t1s:"ソウルから1時間 · 20分間隔",
+      t2:"大田西部ターミナルから34番バス", t2s:"50分 · ₩2,500 · T-moneyで支払い",
+      t3:"最終バス 19:40", t3s:"逃すと大田までタクシー約₩38,000",
+      pnAfter:"下山後 — ローカルコース",
+      a1:"太古寺", a1s:"下山路の崖上の寺院 · 無料",
+      a2:"ハルメ・トトリムク食堂", a2s:"どんぐりこんにゃく＆山菜 · 提携店10%オフ",
+      a3:"大芚山温泉", a3s:"登山後の湯浴みに最適 · タクシー5分",
+      localNote:"<b>あなたの訪問は地域に残ります。</b>このコースの提携店は完州の住民が営んでいます — 集めたスタンプの一つ一つが、旅行者の好みを自治体に伝え、より良いコースづくりに役立ちます。",
+      cta:"登山開始＆スタンプ獲得 ⛰",
+      ppEyebrow:"トレイルパスポート", ppTitle:"Emmaのパスポート",
+      ppSummary:"4座 · 寺院2ヶ所 · バッジ2個獲得",
+      h100Title:"韓国100名山",
+      h100Desc:"韓国山林庁の公式リスト。GPSスタンプを100個集めるとグランドフィニッシャー — 隠れた地方の名山は2倍ポイント。",
+      sDaedun:"大芚山", sSeonun:"禅雲寺", sMoak:"母岳山", sNaejang:"内蔵山",
+      sBaegam:"白岩山", sMore:"+ 探す",
+      bdgEyebrow:"バッジコレクション", bdgTitle:"獲得したバッジ",
+      bdg1:"初登頂", bdg2:"隠れた宝石", bdg3:"全北フィニッシャー", bdg4:"グランドフィニッシャー",
+      bdgLocked:"未獲得",
+      chEyebrow:"チャレンジ", chSecTitle:"チャレンジを達成してバッジを集めよう",
+      chDone:"達成",
+      ch0Title:"初登頂", ch0Rw:"初登頂バッジ獲得 — 旅の始まり！",
+      chTitle:"全北5座チャレンジ",
+      chDesc:"あと1座 — 白岩山が待っています。",
+      chRw:"報酬：全北フィニッシャーバッジ + 完州テンプルステイ1泊無料",
+      ch2Title:"千年古刹巡礼",
+      ch2Desc:"千年を超える古刹3ヶ所を訪問。金山寺で達成です。",
+      ch2Rw:"報酬：巡礼者バッジ + テンプルステイ20%クーポン",
+      ch3Title:"100名山完登",
+      ch3Desc:"究極の旅 — 全国100座完登。隠れた地方の名山は2倍カウント。",
+      ch3Rw:"報酬：グランドフィニッシャーバッジ + 殿堂入り",
+      c1:"ハルメ・トトリムク食堂", c1s:"大芚山スタンプで解除 · 完州",
+      c2:"禅雲山 椿ゲストハウス", c2s:"禅雲寺スタンプで解除 · 高敞",
+      tbDiscover:"発見", tbPassport:"パスポート", tbList:"山一覧", tbMe:"マイ",
+      lsEyebrow:"全ての名山", lsTitle:"次はどこへ？",
+      cntSuffix:"件の山", stamped:"✓ 取得済",
+      rg_all:"すべて", rg_seoul:"ソウル·京畿", rg_gangwon:"江原", rg_chungcheong:"忠清",
+      rg_jeolla:"全羅", rg_gyeongsang:"慶尚", rg_jeju:"済州",
+      df_easy:"初級", df_mod:"中級", df_hard:"上級",
+      srtRec:"おすすめ順", srtDist:"近い順", srtElev:"標高順",
+      locYou:"現在地から", locSeoul:"位置情報オフ — ソウル基準",
+      alMe:"プロトタイプ：プロフィール＆言語設定"
+    },
+    zh: {
+      tagline:"越过名峰，走进韩国的深处。",
+      tasteQ:"你喜欢什么样的登山？",
+      chipGranite:"花岗岩山脊", chipTemple:"寺院寄宿", chipFoliage:"红叶",
+      chipSea:"海景", chipEasy:"轻松路线", chipSpring:"温泉",
+      obTitle:"告诉我们你的登山偏好",
+      obSub:"回答三个问题，为你匹配最合适的山。",
+      obQ1:"你喜欢什么难度？",
+      obD1:"简单", obD1s:"平缓步道 · 2–3小时",
+      obD2:"中等", obD2s:"少量陡坡 · 3–5小时",
+      obD3:"挑战", obD3s:"山脊与攀爬 · 5小时以上",
+      obQ2:"你的登山时长？",
+      obT1:"半天", obT2:"一整天", obT3:"两天一夜",
+      obQ3:"你想在山里遇见什么？",
+      obCta:"寻找我的山 ⛰", obSkip:"暂时跳过",
+      bdgHiddenTag:"隐藏",
+      hiddenHint:"<b>隐藏徽章。</b>全国7座秘密名山藏有隐藏徽章 — 没有列表，没有地图。只有在那里盖章的瞬间才会揭晓。",
+      b100Title:"韩国100名山盖章之旅",
+      b100Sub:"100座中已达成4座 — 查看护照",
+      curated:"为你精选",
+      secTitle:"喜欢雪岳山的话 —<br>来认识它隐藏的兄弟峰",
+      match96:"匹配度 96%", match92:"匹配度 92%", match89:"匹配度 89%",
+      tag100:"100名山",
+      lblDiff:"难度", lblDur:"耗时", lblTemple:"寺庙",
+      diffMod:"中等", diffEasy:"简单+",
+      m1Name:"大芚山", m1Loc:"全北 完州", m1Temple:"太古寺",
+      m1Why:"花岗岩石峰与云桥山脊步道 — 雪岳山般的震撼，却没有人潮。可乘缆车。",
+      m2Name:"禅云山", m2Loc:"全北 高敞", m2Temple:"禅云寺",
+      m2Why:"以山茶花林闻名的1400年古刹山谷。平缓的山脊、清静的步道，以及著名的寺院寄宿体验。",
+      m3Name:"母岳山", m3Loc:"全北 全州·金堤", m3Temple:"金山寺",
+      m3Why:"国宝寺院金山寺所在的山。下山后30分钟即达全州韩屋村美食街。",
+      back:"← 返回发现",
+      dSub:"全罗北道 完州郡 · 878 m",
+      dMap:"在谷歌地图中打开",
+      stRound:"往返", stDist:"距离",
+      pnTransit:"交通指南 — 无车也OK",
+      t1:"KTX至大田站", t1s:"首尔出发 · 1小时 · 每20分钟一班",
+      t2:"大田西部客运站乘34路公交", t2s:"50分钟 · ₩2,500 · 可用T-money支付",
+      t3:"末班车 19:40", t3s:"错过则打车回大田约₩38,000",
+      pnAfter:"下山之后 — 本地路线",
+      a1:"太古寺", a1s:"下山路上的悬崖寺院 · 免费",
+      a2:"奶奶橡子凉粉店", a2s:"橡子凉粉和山野菜 · 合作商家9折",
+      a3:"大芚山温泉", a3s:"登山后泡汤最合适 · 打车5分钟",
+      localNote:"<b>你的到访会留在当地。</b>这条路线的合作商家由完州居民经营 — 你收集的每一个印章，都帮助当地政府了解旅行者的喜好，规划更好的路线。",
+      cta:"开始登山并盖章 ⛰",
+      ppEyebrow:"徒步护照", ppTitle:"Emma的护照",
+      ppSummary:"4座山 · 2座寺庙 · 已获2枚徽章",
+      h100Title:"韩国100名山",
+      h100Desc:"韩国山林厅官方评选名录。集齐100个GPS印章即成为大满贯完登者 — 隐藏的地方名山双倍积分。",
+      sDaedun:"大芚山", sSeonun:"禅云寺", sMoak:"母岳山", sNaejang:"内藏山",
+      sBaegam:"白岩山", sMore:"+ 探索",
+      bdgEyebrow:"徽章收藏", bdgTitle:"已获得的徽章",
+      bdg1:"首次登顶", bdg2:"隐藏宝石", bdg3:"全北完登者", bdg4:"大满贯完登者",
+      bdgLocked:"未解锁",
+      chEyebrow:"挑战", chSecTitle:"完成挑战，赢取徽章",
+      chDone:"已完成",
+      ch0Title:"首次登顶", ch0Rw:"已获得首次登顶徽章 — 旅程开始！",
+      chTitle:"全北五峰挑战",
+      chDesc:"再登一座即可完成 — 白岩山在等你。",
+      chRw:"奖励：全北完登者徽章 + 完州寺院寄宿免费一晚",
+      ch2Title:"千年古刹巡礼",
+      ch2Desc:"探访3座千年以上古刹。再去金山寺即可完成。",
+      ch2Rw:"奖励：朝圣者徽章 + 寺院寄宿8折优惠券",
+      ch3Title:"100名山完登",
+      ch3Desc:"终极之旅 — 登遍全国100座名山。隐藏的地方名山双倍计数。",
+      ch3Rw:"奖励：大满贯完登者徽章 + 载入名人堂",
+      c1:"奶奶橡子凉粉店", c1s:"大芚山印章解锁 · 完州",
+      c2:"禅云山山茶民宿", c2s:"禅云寺印章解锁 · 高敞",
+      tbDiscover:"发现", tbPassport:"护照", tbList:"山峰列表", tbMe:"我的",
+      lsEyebrow:"全部名山", lsTitle:"下一站去哪座山？",
+      cntSuffix:"座山", stamped:"✓ 已盖章",
+      rg_all:"全部", rg_seoul:"首尔·京畿", rg_gangwon:"江原", rg_chungcheong:"忠清",
+      rg_jeolla:"全罗", rg_gyeongsang:"庆尚", rg_jeju:"济州",
+      df_easy:"简单", df_mod:"中等", df_hard:"挑战",
+      srtRec:"推荐排序", srtDist:"距离最近", srtElev:"海拔最高",
+      locYou:"以当前位置为准", locSeoul:"定位关闭 — 以首尔为准",
+      alMe:"原型演示：个人资料与语言设置"
+    }
+  };
+  const LANG_LABEL = {en:"EN", ko:"KO", ja:"JA", zh:"ZH"};
+  let LANG = "en";
+
+  function applyLang(){
+    const dict = I18N[LANG];
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      const v = dict[el.getAttribute("data-i18n")];
+      if(v!==undefined) el.innerHTML = v;
+    });
+    document.documentElement.lang = LANG==="zh" ? "zh-CN" : LANG;
+    document.getElementById("langbtn").textContent = LANG_LABEL[LANG]+" ▾";
+    document.querySelectorAll("[data-lang]").forEach(b=>{
+      b.classList.toggle("on", b.getAttribute("data-lang")===LANG);
+    });
+    renderList();
+  }
+  function toggleLang(){
+    document.getElementById("langmenu").classList.toggle("open");
+  }
+  function setLang(l){
+    LANG = l;
+    document.getElementById("langmenu").classList.remove("open");
+    applyLang();
+  }
+  document.addEventListener("click", e=>{
+    if(!e.target.closest(".langbox")) document.getElementById("langmenu").classList.remove("open");
+  });
+
+  /* ===== mountain list data ===== */
+  const MTS = [
+    {en:"Bukhansan",   ko:"북한산", ja:"北漢山", zh:"北汉山", r:"seoul",       d:"mod",  elev:836,  h:4,   temple:false, got:false, lat:37.658, lng:126.977},
+    {en:"Dobongsan",   ko:"도봉산", ja:"道峰山", zh:"道峰山", r:"seoul",       d:"mod",  elev:740,  h:3.5, temple:false, got:false, lat:37.697, lng:127.014},
+    {en:"Seoraksan",   ko:"설악산", ja:"雪岳山", zh:"雪岳山", r:"gangwon",     d:"hard", elev:1708, h:7,   temple:true,  got:false, lat:38.119, lng:128.465},
+    {en:"Odaesan",     ko:"오대산", ja:"五台山", zh:"五台山", r:"gangwon",     d:"mod",  elev:1563, h:5,   temple:true,  got:false, lat:37.798, lng:128.543},
+    {en:"Chiaksan",    ko:"치악산", ja:"雉岳山", zh:"雉岳山", r:"gangwon",     d:"hard", elev:1288, h:5.5, temple:false, got:false, lat:37.371, lng:128.050},
+    {en:"Songnisan",   ko:"속리산", ja:"俗離山", zh:"俗离山", r:"chungcheong", d:"mod",  elev:1058, h:5,   temple:true,  got:false, lat:36.543, lng:127.870},
+    {en:"Gyeryongsan", ko:"계룡산", ja:"鶏龍山", zh:"鸡龙山", r:"chungcheong", d:"mod",  elev:845,  h:4,   temple:true,  got:false, lat:36.342, lng:127.206},
+    {en:"Daedunsan",   ko:"대둔산", ja:"大芚山", zh:"大芚山", r:"jeolla",      d:"mod",  elev:878,  h:3.5, temple:true,  got:true,  lat:36.122, lng:127.322},
+    {en:"Seonunsan",   ko:"선운산", ja:"禅雲山", zh:"禅云山", r:"jeolla",      d:"easy", elev:336,  h:3,   temple:true,  got:true,  lat:35.503, lng:126.552},
+    {en:"Moaksan",     ko:"모악산", ja:"母岳山", zh:"母岳山", r:"jeolla",      d:"mod",  elev:794,  h:4,   temple:true,  got:true,  lat:35.762, lng:127.084},
+    {en:"Naejangsan",  ko:"내장산", ja:"内蔵山", zh:"内藏山", r:"jeolla",      d:"mod",  elev:763,  h:4,   temple:true,  got:true,  lat:35.478, lng:126.889},
+    {en:"Baegamsan",   ko:"백암산", ja:"白岩山", zh:"白岩山", r:"jeolla",      d:"mod",  elev:741,  h:4,   temple:true,  got:false, lat:35.435, lng:126.918},
+    {en:"Duryunsan",   ko:"두륜산", ja:"頭輪山", zh:"头轮山", r:"jeolla",      d:"easy", elev:703,  h:3.5, temple:true,  got:false, lat:34.481, lng:126.619},
+    {en:"Mudeungsan",  ko:"무등산", ja:"無等山", zh:"无等山", r:"jeolla",      d:"easy", elev:1187, h:4,   temple:false, got:false, lat:35.134, lng:126.989},
+    {en:"Jirisan",     ko:"지리산", ja:"智異山", zh:"智异山", r:"gyeongsang",  d:"hard", elev:1915, h:8,   temple:true,  got:false, lat:35.337, lng:127.731},
+    {en:"Gayasan",     ko:"가야산", ja:"伽倻山", zh:"伽倻山", r:"gyeongsang",  d:"hard", elev:1430, h:5,   temple:true,  got:false, lat:35.823, lng:128.123},
+    {en:"Palgongsan",  ko:"팔공산", ja:"八公山", zh:"八公山", r:"gyeongsang",  d:"mod",  elev:1193, h:4.5, temple:true,  got:false, lat:35.980, lng:128.694},
+    {en:"Hallasan",    ko:"한라산", ja:"漢拏山", zh:"汉拿山", r:"jeju",        d:"hard", elev:1947, h:8,   temple:false, got:false, lat:33.362, lng:126.529}
+  ];
+  let REGION_F = "all", DIFF_F = "all", SORT = "rec";
+  let USERLOC = null, LOCSRC = null;   // LOCSRC: 'you' | 'seoul'
+  const SEOUL = {lat:37.5665, lng:126.9780};
+
+  function distKm(a, b){
+    const R = 6371, toRad = x => x*Math.PI/180;
+    const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
+    const s = Math.sin(dLat/2)**2 +
+      Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(s));
+  }
+
+  function mapUrl(m){
+    return "https://www.google.com/maps/search/?api=1&query=" +
+      encodeURIComponent(m.ko + " " + m.en + " South Korea");
+  }
+
+  function renderList(){
+    const dict = I18N[LANG];
+    let items = MTS.filter(m =>
+      (REGION_F==="all" || m.r===REGION_F) && (DIFF_F==="all" || m.d===DIFF_F));
+
+    if(SORT==="dist" && USERLOC){
+      items = items.slice().sort((a,b)=>distKm(USERLOC,a)-distKm(USERLOC,b));
+    } else if(SORT==="elev"){
+      items = items.slice().sort((a,b)=>b.elev-a.elev);
+    }
+
+    let cnt = items.length + " " + dict.cntSuffix;
+    if(SORT==="dist" && LOCSRC) cnt += " · 📍 " + (LOCSRC==="you" ? dict.locYou : dict.locSeoul);
+    document.getElementById("mcount").textContent = cnt;
+
+    document.getElementById("mlist").innerHTML = items.map(m => {
+      const dist = (SORT==="dist" && USERLOC)
+        ? `<b class="num" style="color:var(--pine)">${Math.round(distKm(USERLOC,m))} km</b> · ` : "";
+      return `
+      <div class="mrow${m.got?" got":""}" role="button" tabindex="0" onclick="openDetail()" onkeydown="if(event.key==='Enter')openDetail()">
+        <span class="dot">⛰</span>
+        <span class="info">
+          <b>${m[LANG]}</b>
+          <small>${dist}${dict["rg_"+m.r]} · <span class="num">${m.elev.toLocaleString()} m</span> · ${m.h} h${m.temple?" · 🏯":""}</small>
+        </span>
+        <span class="right">
+          <span class="pill ${m.d}">${dict["df_"+m.d]}</span>
+          ${m.got?`<span class="gotchip">${dict.stamped}</span>`:""}
+        </span>
+        <a class="mapbtn" href="${mapUrl(m)}" target="_blank" rel="noopener"
+           aria-label="Google Maps" onclick="event.stopPropagation()">📍</a>
+      </div>`;
+    }).join("");
+  }
+  function setRegion(r, el){
+    REGION_F = r;
+    el.parentElement.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+    el.classList.add("on");
+    renderList();
+  }
+  function setDiff(d, el){
+    DIFF_F = d;
+    el.parentElement.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+    el.classList.add("on");
+    renderList();
+  }
+  function setSort(s, el){
+    SORT = s;
+    el.parentElement.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+    el.classList.add("on");
+    if(s==="dist" && !USERLOC){
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          p => { USERLOC = {lat:p.coords.latitude, lng:p.coords.longitude}; LOCSRC="you"; renderList(); },
+          () => { USERLOC = SEOUL; LOCSRC="seoul"; renderList(); },
+          {timeout:4000}
+        );
+      } else { USERLOC = SEOUL; LOCSRC="seoul"; }
+    }
+    renderList();
+  }
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function go(name){
+    show('scr-'+name);
+    ['home','list','pass'].forEach(n=>{
+      const t = document.getElementById('tab-'+n);
+      if(t) t.classList.toggle('on', n===name);
+    });
+  }
+  function openDetail(){ show('scr-detail'); }
+  function closeDetail(){ go('home'); }
+  function goPassport(){ go('pass'); }
+
+  /* onboarding */
+  function pickSingle(el){
+    el.parentElement.querySelectorAll('.optcard').forEach(c=>c.classList.remove('on'));
+    el.classList.add('on');
+  }
+  function pickSingleChip(el){
+    el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+    el.classList.add('on');
+  }
+  function finishOnboard(){
+    document.getElementById('phone').classList.remove('ob');
+    go('home');
+  }
+
+  applyLang();
+</script>
