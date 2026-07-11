@@ -48,14 +48,25 @@ data/
   mountains.ts          # 100대 명산 데이터 (→ 산림청 API로 교체 예정)
 ```
 
-### 백엔드 (공공데이터 연동 지점)
+### 백엔드 — 공공데이터 연동
 
-`GET /api/mountains?region=jeolla&difficulty=easy` — 현재는 정적 데이터 서빙.
-실 API 연동 시 이 라우트에서 산림청·TourAPI·TAGO를 fetch + 캐싱으로 교체:
+공공데이터포털 인증키 하나로 전 API 호출. 설정:
 
-- `FOREST_API_KEY` — 산림청 100대 명산·등산로
-- `TOUR_API_KEY` — 한국관광공사 TourAPI (다국어 관광정보·축제)
-- `TAGO_API_KEY` — 국토교통부 버스·열차
+```bash
+cp .env.example .env.local
+# .env.local에 일반 인증키(Decoding) 입력: DATA_GO_KR_KEY=...
+```
+
+키가 없거나 호출 실패 시 각 라우트는 정적 데이터로 자동 폴백 (`source` 필드로 구분).
+
+| 라우트 | 데이터 | 상태 |
+|---|---|---|
+| `GET /api/mountains` | 한국등산트레킹지원센터 100대명산 목록 → 큐레이션 18좌와 병합 | ✅ 라이브 |
+| `GET /api/safety` | 기상청 초단기실황 (기온·강수 → 폭염/우천 판정) + 일몰 계산 | ✅ 라이브 |
+| `GET /api/nearby` | TourAPI 영문 위치기반 주변 관광지 | ✅ 라이브 |
+| `GET /api/temples` | 행안부 전통사찰 (CSV 정제본) | ✅ 정적 |
+| `GET /api/seasonal` | 월별 계절 추천 (TourAPI 축제 연동 예정) | 정적 |
+| 교통 (TAGO 시외버스·열차) | 터미널·역 ID 매핑 필요 | 예정 |
 
 ## 주요 기능
 

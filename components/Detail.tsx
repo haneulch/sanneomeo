@@ -23,21 +23,34 @@ interface Temple {
 
 interface Safety {
   sunset: string;
+  weather: { tempC: number | null; rainMm: number | null } | null;
   alert: { level: "advisory" | "warning"; type: string } | null;
   access: "open" | "partial" | "closed";
+}
+
+interface Nearby {
+  title: string;
+  addr: string;
+  distM: number;
 }
 
 export default function Detail({ lang, onBack, onStamp }: Props) {
   const t = makeT(lang);
   const [temple, setTemple] = useState<Temple | null>(null);
   const [safety, setSafety] = useState<Safety | null>(null);
+  const [nearby, setNearby] = useState<Nearby[]>([]);
 
   useEffect(() => {
-    // 대둔산 좌표 기반 일몰·특보·입산통제 (기상청/산림청 연동 지점)
+    // 대둔산 좌표 기반 일몰·기상 실황(기상청)·입산통제
     fetch("/api/safety?lat=36.122&lng=127.322")
       .then((r) => r.json())
       .then(setSafety)
       .catch(() => setSafety(null));
+    // TourAPI 주변 관광지 (키 없으면 빈 배열 → 섹션 숨김)
+    fetch("/api/nearby?lat=36.122&lng=127.322")
+      .then((r) => r.json())
+      .then((d) => setNearby(d.items ?? []))
+      .catch(() => setNearby([]));
   }, []);
 
   useEffect(() => {
@@ -127,11 +140,16 @@ export default function Detail({ lang, onBack, onStamp }: Props) {
           <div className="safeitem">
             <span className="k">⚠️ {t("sfAlert")}</span>
             {safety?.alert ? (
-              <b className="warn">{t("sfAlertHeat")}</b>
+              <b className="warn">
+                {t(safety.alert.type === "rain" ? "sfAlertRain" : "sfAlertHeat")}
+              </b>
             ) : (
               <b className="ok">{t("sfNone")}</b>
             )}
-            <small>{t("sfAlertNote")}</small>
+            <small>
+              {safety?.weather?.tempC != null ? `${safety.weather.tempC}°C · ` : ""}
+              {t("sfAlertNote")}
+            </small>
           </div>
           <div className="safeitem">
             <span className="k">🚧 {t("sfAccess")}</span>
@@ -173,6 +191,25 @@ export default function Detail({ lang, onBack, onStamp }: Props) {
           </div>
         ))}
       </div>
+
+      {nearby.length > 0 && (
+        <div className="panel">
+          <h3>{t("pnNearby")}</h3>
+          {nearby.map((n) => (
+            <div key={n.title} className="step">
+              <span className="ico">🧭</span>
+              <div>
+                <b>{n.title}</b>
+                <small>
+                  {n.distM > 0 ? `${(n.distM / 1000).toFixed(1)} km · ` : ""}
+                  {n.addr}
+                </small>
+              </div>
+            </div>
+          ))}
+          <p className="datasrc">{t("nearbySrc")}</p>
+        </div>
+      )}
 
       {temple && temple.history && (
         <div className="panel">

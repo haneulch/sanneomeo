@@ -1,26 +1,32 @@
 import { NextResponse } from "next/server";
 import { sunsetKST } from "@/lib/sun";
+import { fetchKmaNow } from "@/lib/kma";
 
 /**
  * GET /api/safety?lat=36.122&lng=127.322
  *
- * 공공데이터 연동 지점 (로드맵):
- * - 기상청 기상특보 조회서비스: process.env.KMA_API_KEY — alert 필드 대체
- * - 산림청 입산통제 정보: process.env.FOREST_API_KEY — access 필드 대체
- * 현재 alert/access는 데모 값, sunset은 좌표 기반 실계산.
+ * - sunset: 좌표 기반 실계산
+ * - weather: 기상청 초단기실황 (DATA_GO_KR_KEY) — 기온·강수 실데이터
+ * - alert: 실황 기반 판정 (기온 33°C↑ 폭염, 강수 감지 시 우천 주의).
+ *   기상특보 API 승인 시 공식 특보로 교체 지점.
+ * - access: 데모 값 — 산림청 입산통제 데이터 연동 지점.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const lat = Number(searchParams.get("lat") ?? 36.122);
   const lng = Number(searchParams.get("lng") ?? 127.322);
 
+  const kma = await fetchKmaNow(lat, lng);
+
+  let alert: { level: "advisory" | "warning"; type: string } | null = null;
+  if (kma?.tempC != null && kma.tempC >= 33) alert = { level: "advisory", type: "heat" };
+  else if (kma?.rainMm != null && kma.rainMm > 0) alert = { level: "advisory", type: "rain" };
+
   return NextResponse.json({
     sunset: sunsetKST(lat, lng),
-    // 데모: 7월 폭염주의보 시나리오. 실연동 시 기상청 특보 API로 교체.
-    alert: { level: "advisory", type: "heat" } as
-      | { level: "advisory" | "warning"; type: string }
-      | null,
-    // 데모: 개방. 실연동 시 산림청 입산통제 데이터로 교체.
-    access: "open" as "open" | "partial" | "closed",
+    weather: kma, // { tempC, rainMm } | null
+    alert,
+    access: "open" as const,
+    source: kma ? "live" : "static",
   });
 }
