@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Lang } from "@/lib/types";
 import { LANGS, LANG_LABEL, makeT } from "@/lib/i18n";
+import type { SeasonalPick } from "@/data/seasonal";
 
 interface Props {
   lang: Lang;
@@ -76,6 +77,14 @@ const TASTE_CHIPS: { key: string; on: boolean }[] = [
 export default function Discover({ lang, setLang, onOpenDetail, onOpenPassport }: Props) {
   const t = makeT(lang);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [seasonal, setSeasonal] = useState<SeasonalPick[]>([]);
+
+  useEffect(() => {
+    fetch("/api/seasonal")
+      .then((r) => r.json())
+      .then((d) => setSeasonal(d.items ?? []))
+      .catch(() => setSeasonal([]));
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -136,6 +145,26 @@ export default function Discover({ lang, setLang, onOpenDetail, onOpenPassport }
           ))}
         </div>
       </div>
+
+      {seasonal.length > 0 && (
+        <>
+          <div className="pad" style={{ marginTop: 24 }}>
+            <span className="eyebrow">{t("nowEyebrow")}</span>
+            <h2 className="sec" style={{ marginBottom: 0 }}>
+              {t("nowTitle")}
+            </h2>
+          </div>
+          <div className="nowrow">
+            {seasonal.map((s) => (
+              <button key={s.mountain + s.emoji} className="nowcard" onClick={onOpenDetail}>
+                <span className="em">{s.emoji}</span>
+                <b>{s.title[lang]}</b>
+                <span className="nowtag">{s.tag[lang]}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       <button className="banner100" onClick={onOpenPassport}>
         <span className="pk">⛰</span>

@@ -443,3 +443,61 @@
     .screen.active{animation:fade .22s ease}
     @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
   }
+
+  /* ===== safety card ===== */
+  .panel.safety{border-top:4px solid #C96450}
+  .safegrid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .safeitem{
+    background:var(--mist); border-radius:12px; padding:11px 12px;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .safeitem .k{font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft)}
+  .safeitem b{font-size:16px}
+  .safeitem b.ok{color:var(--pine)}
+  .safeitem b.warn{color:#C96450}
+  .safeitem small{font-size:10.5px; color:var(--ink-soft); line-height:1.4}
+
+  /* ===== seasonal now ===== */
+  .nowrow{
+    display:flex; gap:10px; overflow-x:auto; padding:12px 20px 2px;
+    scrollbar-width:none;
+  }
+  .nowrow::-webkit-scrollbar{display:none}
+  .nowcard{
+    flex:0 0 168px; text-align:left;
+    background:var(--card); border-radius:14px; box-shadow:var(--shadow);
+    padding:13px 14px; display:flex; flex-direction:column; gap:6px;
+  }
+  .nowcard .em{font-size:24px}
+  .nowcard b{font-size:12.5px; line-height:1.4; letter-spacing:-.01em}
+  .nowcard .nowtag{
+    align-self:flex-start; font-size:10px; font-weight:800;
+    background:var(--amber-soft); color:var(--amber);
+    padding:3px 8px; border-radius:999px;
+  }
+
+  /* ===== share sheet ===== */
+  .pass-title{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .sharebtn{
+    font-size:12px; font-weight:800; color:var(--pine);
+    border:2px solid var(--pine); border-radius:999px; padding:6px 13px;
+    flex:0 0 auto;
+  }
+  .sheetwrap{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(10,18,13,.6); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .sheet{
+    background:var(--card); border-radius:20px; padding:18px;
+    width:100%; max-width:360px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .sheettitle{font-size:15px; font-weight:800}
+  .sharecanvas{width:100%; height:auto; border-radius:12px; display:block}
+  .sheetbtns{display:flex; gap:8px}
+  .sheetbtns button{
+    flex:1; padding:12px; border-radius:12px; font-size:13.5px; font-weight:800;
+    background:var(--mist); color:var(--ink);
+  }
+  .sheetbtns button.primary{background:var(--pine); color:var(--paper)}

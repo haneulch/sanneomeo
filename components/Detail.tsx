@@ -21,9 +21,24 @@ interface Temple {
   history: string;
 }
 
+interface Safety {
+  sunset: string;
+  alert: { level: "advisory" | "warning"; type: string } | null;
+  access: "open" | "partial" | "closed";
+}
+
 export default function Detail({ lang, onBack, onStamp }: Props) {
   const t = makeT(lang);
   const [temple, setTemple] = useState<Temple | null>(null);
+  const [safety, setSafety] = useState<Safety | null>(null);
+
+  useEffect(() => {
+    // 대둔산 좌표 기반 일몰·특보·입산통제 (기상청/산림청 연동 지점)
+    fetch("/api/safety?lat=36.122&lng=127.322")
+      .then((r) => r.json())
+      .then(setSafety)
+      .catch(() => setSafety(null));
+  }, []);
 
   useEffect(() => {
     // 대둔산 태고사(충남 금산 진산면) 유래·연혁 — 행안부 전통사찰 데이터
@@ -100,6 +115,38 @@ export default function Detail({ lang, onBack, onStamp }: Props) {
         <span>📍</span>
         <span>{t("dMap")}</span>
       </a>
+
+      <div className="panel safety">
+        <h3>🛟 {t("pnSafety")}</h3>
+        <div className="safegrid">
+          <div className="safeitem">
+            <span className="k">🌇 {t("sfSunset")}</span>
+            <b className="num">{safety?.sunset ?? "–"}</b>
+            <small>{t("sfSunsetNote")}</small>
+          </div>
+          <div className="safeitem">
+            <span className="k">⚠️ {t("sfAlert")}</span>
+            {safety?.alert ? (
+              <b className="warn">{t("sfAlertHeat")}</b>
+            ) : (
+              <b className="ok">{t("sfNone")}</b>
+            )}
+            <small>{t("sfAlertNote")}</small>
+          </div>
+          <div className="safeitem">
+            <span className="k">🚧 {t("sfAccess")}</span>
+            <b className={safety?.access === "open" ? "ok" : "warn"}>
+              {t(safety?.access === "open" ? "sfOpen" : "sfClosed")}
+            </b>
+            <small>{t("sfAccessNote")}</small>
+          </div>
+          <div className="safeitem">
+            <span className="k">🚨 {t("sfEmg")}</span>
+            <b>119</b>
+            <small>{t("sfEmgDesc")}</small>
+          </div>
+        </div>
+      </div>
 
       <div className="panel">
         <h3>{t("pnTransit")}</h3>

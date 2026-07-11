@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import type { Lang } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 
@@ -7,8 +8,79 @@ interface Props {
   lang: Lang;
 }
 
+function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string) {
+  const W = 720, H = 900;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  // 배경
+  ctx.fillStyle = "#1E3F30";
+  ctx.fillRect(0, 0, W, H);
+
+  // 능선 실루엣
+  ctx.fillStyle = "rgba(44,89,67,.7)";
+  ctx.beginPath();
+  ctx.moveTo(0, 780);
+  [[110, 640], [200, 720], [320, 600], [430, 700], [560, 630], [720, 710]].forEach(([x, y]) =>
+    ctx.lineTo(x, y)
+  );
+  ctx.lineTo(720, 900); ctx.lineTo(0, 900); ctx.closePath(); ctx.fill();
+
+  ctx.fillStyle = "rgba(143,174,147,.45)";
+  ctx.beginPath();
+  ctx.moveTo(0, 900);
+  [[90, 760], [220, 830], [360, 740], [500, 820], [640, 770], [720, 800]].forEach(([x, y]) =>
+    ctx.lineTo(x, y)
+  );
+  ctx.lineTo(720, 900); ctx.closePath(); ctx.fill();
+
+  // 해
+  ctx.fillStyle = "#D99A3D";
+  ctx.beginPath(); ctx.arc(600, 150, 42, 0, Math.PI * 2); ctx.fill();
+
+  const center = (txt: string, y: number, font: string, color = "#F2F5EF") => {
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.fillText(txt, W / 2, y);
+  };
+
+  center("산너머", 130, "800 64px sans-serif");
+  center("S A N N E O M E O", 172, "600 20px sans-serif", "rgba(242,245,239,.7)");
+
+  center(t("ppTitle"), 260, "700 32px sans-serif", "#E4E9E2");
+
+  center("4 / 100", 400, "800 110px sans-serif", "#D99A3D");
+  center(t("h100Title"), 450, "600 24px sans-serif", "rgba(242,245,239,.85)");
+
+  center("⛰ ⛰ ⛰ ⛰", 540, "48px sans-serif");
+  center(`${t("sDaedun")} · ${t("sSeonun")} · ${t("sMoak")} · ${t("sNaejang")}`, 585, "500 22px sans-serif", "#CBD8CC");
+
+  center(`🥾 ${t("bdg1")}   💎 ${t("bdg2")}`, 650, "600 26px sans-serif", "#F4E7CF");
+
+  center(t("tagline"), 850, "500 20px sans-serif", "rgba(242,245,239,.65)");
+}
+
 export default function Passport({ lang }: Props) {
   const t = makeT(lang);
+  const [shareOpen, setShareOpen] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (shareOpen && canvasRef.current) drawShareCard(canvasRef.current, t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shareOpen, lang]);
+
+  const savePng = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const a = document.createElement("a");
+    a.download = "sanneomeo-passport.png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  };
 
   const stamps = [
     { pk: "⛰", name: "sDaedun", date: "JUN 28" },
@@ -21,9 +93,29 @@ export default function Passport({ lang }: Props) {
     <section className="screen active" id="scr-pass">
       <div className="pass-head">
         <span className="eyebrow">{t("ppEyebrow")}</span>
-        <h1>{t("ppTitle")}</h1>
+        <div className="pass-title">
+          <h1>{t("ppTitle")}</h1>
+          <button className="sharebtn" onClick={() => setShareOpen(true)}>
+            📤 {t("shareBtn")}
+          </button>
+        </div>
         <p>{t("ppSummary")}</p>
       </div>
+
+      {shareOpen && (
+        <div className="sheetwrap" onClick={() => setShareOpen(false)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <b className="sheettitle">{t("shareTitle")}</b>
+            <canvas ref={canvasRef} className="sharecanvas" />
+            <div className="sheetbtns">
+              <button className="primary" onClick={savePng}>
+                {t("shareSave")}
+              </button>
+              <button onClick={() => setShareOpen(false)}>{t("shareClose")}</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="hundred">
         <div className="top">
