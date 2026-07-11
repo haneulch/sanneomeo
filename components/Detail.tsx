@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { Lang } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 
@@ -13,8 +14,30 @@ const DAEDUNSAN_MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=" +
   encodeURIComponent("대둔산 Daedunsan South Korea");
 
+interface Temple {
+  name: string;
+  addr: string;
+  founded: string;
+  history: string;
+}
+
 export default function Detail({ lang, onBack, onStamp }: Props) {
   const t = makeT(lang);
+  const [temple, setTemple] = useState<Temple | null>(null);
+
+  useEffect(() => {
+    // 대둔산 태고사(충남 금산 진산면) 유래·연혁 — 행안부 전통사찰 데이터
+    fetch("/api/temples?q=태고사&addr=금산군")
+      .then((r) => r.json())
+      .then((d) => {
+        const items: Temple[] = d.items ?? [];
+        const best = items
+          .slice()
+          .sort((a, b) => b.history.length - a.history.length)[0];
+        setTemple(best ?? null);
+      })
+      .catch(() => setTemple(null));
+  }, []);
 
   const transit = [
     { ico: "🚄", title: "t1", sub: "t1s" },
@@ -103,6 +126,23 @@ export default function Detail({ lang, onBack, onStamp }: Props) {
           </div>
         ))}
       </div>
+
+      {temple && temple.history && (
+        <div className="panel">
+          <h3>{t("pnStory")}</h3>
+          <div className="step">
+            <span className="ico">📜</span>
+            <div>
+              <b>
+                {temple.name}
+                {temple.founded ? ` · ${temple.founded}` : ""}
+              </b>
+              <small>{temple.history}</small>
+            </div>
+          </div>
+          <p className="datasrc">{t("storySrc")}</p>
+        </div>
+      )}
 
       <div className="local-note" dangerouslySetInnerHTML={{ __html: t("localNote") }} />
 

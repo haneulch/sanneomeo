@@ -212,6 +212,7 @@
   }
   .step b{display:block; font-size:13px}
   .step small{color:var(--ink-soft); font-size:12px}
+  .datasrc{margin-top:10px; font-size:10.5px; color:var(--ink-soft); letter-spacing:.02em}
   .local-note{
     margin:16px 20px 0; padding:13px 15px;
     background:var(--amber-soft); border-radius:14px;
