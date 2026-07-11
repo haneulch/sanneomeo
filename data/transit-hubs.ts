@@ -10,17 +10,17 @@ export interface TransitHub {
 export const TRANSIT_HUBS: Record<string, TransitHub> = {
   대둔산: { city: "대전", station: "대전", stationEn: "Daejeon" },
   계룡산: { city: "대전", station: "대전", stationEn: "Daejeon" },
-  내장산: { city: "전북", station: "정읍", stationEn: "Jeongeup" },
-  백암산: { city: "전북", station: "정읍", stationEn: "Jeongeup" },
-  선운산: { city: "전북", station: "정읍", stationEn: "Jeongeup" },
-  모악산: { city: "전북", station: "전주", stationEn: "Jeonju" },
-  지리산: { city: "전남", station: "구례구", stationEn: "Guryegu" },
+  내장산: { city: "전라북도", station: "정읍", stationEn: "Jeongeup" },
+  백암산: { city: "전라북도", station: "정읍", stationEn: "Jeongeup" },
+  선운산: { city: "전라북도", station: "정읍", stationEn: "Jeongeup" },
+  모악산: { city: "전라북도", station: "전주", stationEn: "Jeonju" },
+  지리산: { city: "전라남도", station: "구례구", stationEn: "Guryegu" },
   무등산: { city: "광주", station: "광주송정", stationEn: "Gwangju-Songjeong" },
   팔공산: { city: "대구", station: "동대구", stationEn: "Dongdaegu" },
   가야산: { city: "대구", station: "동대구", stationEn: "Dongdaegu" },
-  치악산: { city: "강원", station: "원주", stationEn: "Wonju" },
-  오대산: { city: "강원", station: "진부", stationEn: "Jinbu (Odaesan)" },
-  설악산: { city: "강원", station: "강릉", stationEn: "Gangneung" },
+  치악산: { city: "강원도", station: "원주", stationEn: "Wonju" },
+  오대산: { city: "강원도", station: "진부", stationEn: "Jinbu (Odaesan)" },
+  설악산: { city: "강원도", station: "강릉", stationEn: "Gangneung" },
 };
 
 export const SEOUL_STATION = { city: "서울", station: "서울", stationEn: "Seoul" };

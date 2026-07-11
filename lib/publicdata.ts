@@ -68,14 +68,10 @@ export async function fetchFestivals(fromYmd: string): Promise<Record<string, un
   return extractItems(json);
 }
 
-/**
- * TAGO 열차정보 — 도시코드/역목록/출도착 시간표.
- * 주의: 이 서비스는 활용신청 승인 전이면 게이트웨이가 "Unexpected errors"를
- * 반환한다 (JSON 아님 → null 폴백). 승인되면 코드 수정 없이 라이브 전환.
- */
+/** TAGO 열차정보 — 도시코드/역목록/출도착 시간표 (1613000/TrainInfo/Get*) */
 export async function fetchTrainCityCodes(): Promise<Record<string, unknown>[]> {
   const json = await fetchApi(
-    "https://apis.data.go.kr/1613000/TrainInfoService1/getCtyCodeList1",
+    "https://apis.data.go.kr/1613000/TrainInfo/GetCtyCodeList",
     { _type: "json", numOfRows: "50", pageNo: "1" }
   );
   return extractItems(json);
@@ -83,7 +79,7 @@ export async function fetchTrainCityCodes(): Promise<Record<string, unknown>[]> 
 
 export async function fetchTrainStations(cityCode: string): Promise<Record<string, unknown>[]> {
   const json = await fetchApi(
-    "https://apis.data.go.kr/1613000/TrainInfoService1/getCtyAcctoTrainSttnList1",
+    "https://apis.data.go.kr/1613000/TrainInfo/GetCtyAcctoTrainSttnList",
     { _type: "json", cityCode, numOfRows: "200", pageNo: "1" }
   );
   return extractItems(json);
@@ -95,7 +91,7 @@ export async function fetchTrainSchedule(
   ymd: string
 ): Promise<Record<string, unknown>[]> {
   const json = await fetchApi(
-    "https://apis.data.go.kr/1613000/TrainInfoService1/getStrtpntAlocFndTrainInfo1",
+    "https://apis.data.go.kr/1613000/TrainInfo/GetStrtpntAlocFndTrainInfo",
     {
       _type: "json",
       depPlaceId,

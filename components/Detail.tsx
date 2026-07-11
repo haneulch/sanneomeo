@@ -35,7 +35,7 @@ interface Nearby {
 
 interface Transit {
   hub?: { ko: string; en: string };
-  trains: { dep: string; arr: string; type: string }[];
+  trains: { dep: string; arr: string; type: string; fare: number }[];
 }
 
 const YDS: Record<Mountain["d"], string> = {
@@ -213,7 +213,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
                     <b className="num">
                       {tr.dep} → {tr.arr}
                     </b>
-                    <small>{tr.type}</small>
+                    <small>{tr.type}{tr.fare ? ` · ₩${tr.fare.toLocaleString()}` : ""}</small>
                   </div>
                 </div>
               ))}

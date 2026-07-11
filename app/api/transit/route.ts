@@ -52,6 +52,7 @@ export async function GET(request: Request) {
         dep: hhmm(r.depplandtime),
         arr: hhmm(r.arrplandtime),
         type: str(r.traingradename),
+        fare: Number(r.adultcharge) || 0,
       }))
       .filter((t) => t.dep)
       .slice(0, 5);

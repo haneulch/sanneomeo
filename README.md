@@ -66,7 +66,7 @@ cp .env.example .env.local
 | `GET /api/nearby` | TourAPI 영문 위치기반 주변 관광지 | ✅ 라이브 |
 | `GET /api/temples` | 행안부 전통사찰 (CSV 정제본) | ✅ 정적 |
 | `GET /api/seasonal` | 월별 계절 픽 + TourAPI 진행 중 축제 (산 30km 매칭) | ✅ 라이브 |
-| `GET /api/transit` | TAGO 열차 시간표 (서울→허브역, 역 ID 런타임 해석) | ⏳ 승인 대기 |
+| `GET /api/transit` | TAGO 열차 시간표·요금 (서울→허브역 13좌, 역 ID 런타임 해석) | ✅ 라이브 |
 
 ## 주요 기능
 
