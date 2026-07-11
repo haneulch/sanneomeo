@@ -20,6 +20,7 @@ export async function GET(request: Request) {
       image: String(r.firstimage2 ?? r.firstimage ?? ""),
     }))
     .filter((i) => i.title)
+    .sort((a, b) => a.distM - b.distM)
     .slice(0, 4);
 
   return NextResponse.json({ items, source: items.length ? "live" : "static" });

@@ -57,7 +57,7 @@ export async function fetchNearbyTour(
   radius = 15000
 ): Promise<Record<string, unknown>[]> {
   const json = await fetchApi(
-    "https://apis.data.go.kr/B551011/EngService1/locationBasedList1",
+    "https://apis.data.go.kr/B551011/EngService2/locationBasedList2",
     {
       MobileOS: "ETC",
       MobileApp: "SanNeomeo",
@@ -65,8 +65,7 @@ export async function fetchNearbyTour(
       mapX: String(lng),
       mapY: String(lat),
       radius: String(radius),
-      arrange: "S", // 거리순+이미지
-      numOfRows: "6",
+      numOfRows: "10",
       pageNo: "1",
     },
     3600
