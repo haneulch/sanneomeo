@@ -12,16 +12,50 @@
 - 지역에는 동급의 산·사찰 자원이 있으나 외국어 정보 부재, 상품화 미비, 데이터 기반 기획 부재
 - 산너머는 **자원을 상품으로** (큐레이션 + 스토리텔링), **방문을 소비로** (하산 후 지역 동선 설계 + 패스포트), **소비를 전략으로** (방문 데이터의 지자체 환류) 전환하는 순환 구조를 제안
 
-## 프로토타입 실행
+## 실행
 
-정적 HTML 단일 파일입니다. 별도 빌드·서버 불필요.
+Next.js(App Router) + React + TypeScript.
 
 ```bash
-open index.html          # macOS
-# 또는 브라우저에서 index.html 열기
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # 프로덕션 빌드
 ```
 
 모바일 뷰(414px) 기준으로 제작. 데스크톱 브라우저에서는 중앙 정렬된 폰 프레임으로 표시됩니다.
+초기 단일 HTML 프로토타입은 `prototype/index.html`에 보존.
+
+## 프로젝트 구조
+
+```
+app/
+  layout.tsx            # 루트 레이아웃 (메타·뷰포트)
+  page.tsx              # 화면 상태·언어 상태 관리 루트 (클라이언트)
+  globals.css           # 디자인 토큰·전체 스타일 (다크모드 포함)
+  api/mountains/route.ts # 백엔드: 산 목록 API (공공데이터 연동 지점)
+components/
+  Onboarding.tsx        # 취향 설문
+  Discover.tsx          # 큐레이션 홈
+  Detail.tsx            # 산 상세 (교통·하산 코스·구글맵)
+  MountainList.tsx      # 전체 목록 (필터·정렬·거리 계산)
+  Passport.tsx          # 스탬프·뱃지·챌린지
+  TabBar.tsx            # 하단 탭
+lib/
+  types.ts              # Mountain·Lang 등 타입
+  i18n.ts               # 4개 언어 사전
+  geo.ts                # 하버사인 거리·구글맵 URL
+data/
+  mountains.ts          # 100대 명산 데이터 (→ 산림청 API로 교체 예정)
+```
+
+### 백엔드 (공공데이터 연동 지점)
+
+`GET /api/mountains?region=jeolla&difficulty=easy` — 현재는 정적 데이터 서빙.
+실 API 연동 시 이 라우트에서 산림청·TourAPI·TAGO를 fetch + 캐싱으로 교체:
+
+- `FOREST_API_KEY` — 산림청 100대 명산·등산로
+- `TOUR_API_KEY` — 한국관광공사 TourAPI (다국어 관광정보·축제)
+- `TAGO_API_KEY` — 국토교통부 버스·열차
 
 ## 주요 기능
 
@@ -70,9 +104,10 @@ open index.html          # macOS
 
 ## 기술 구성
 
-- 단일 `index.html` — 순수 HTML/CSS/JS, 외부 의존성 없음
-- 다크 모드 지원 (`prefers-color-scheme` + 토큰 기반 테마)
-- i18n: `data-i18n` 속성 + 언어별 사전 객체
+- Next.js 15 (App Router) + React 19 + TypeScript
+- 백엔드: Next.js API Routes (`app/api/*`) — 공공데이터 프록시·캐싱 계층
+- 스타일: 순수 CSS 디자인 토큰, 다크 모드 지원 (`prefers-color-scheme`)
+- i18n: 언어별 사전 객체 (`lib/i18n.ts`), 4개 언어
 - 거리 계산: 하버사인 공식, 브라우저 Geolocation API
 
 ## 로드맵 (프로토타입 이후)
