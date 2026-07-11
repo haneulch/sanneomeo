@@ -33,6 +33,11 @@ interface Nearby {
   distM: number;
 }
 
+interface Transit {
+  hub?: { ko: string; en: string };
+  trains: { dep: string; arr: string; type: string }[];
+}
+
 const YDS: Record<Mountain["d"], string> = {
   easy: "YDS Class 1",
   mod: "YDS Class 2",
@@ -44,11 +49,19 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const [temple, setTemple] = useState<Temple | null>(null);
   const [safety, setSafety] = useState<Safety | null>(null);
   const [nearby, setNearby] = useState<Nearby[]>([]);
+  const [transit, setTransit] = useState<Transit | null>(null);
 
   useEffect(() => {
     setSafety(null);
     setNearby([]);
     setTemple(null);
+    setTransit(null);
+
+    fetch(`/api/transit?m=${encodeURIComponent(m.ko)}`)
+      .then((r) => r.json())
+      .then(setTransit)
+      .catch(() => setTransit(null));
+
     if (!m.lat || !m.lng) return;
 
     fetch(`/api/safety?lat=${m.lat}&lng=${m.lng}`)
@@ -78,7 +91,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const title = lang === "en" ? `${m.en} ${m.ko}` : m[lang];
   const distKmRT = (m.h * 2).toFixed(1);
 
-  const transit = [
+  const staticTransit = [
     { ico: "🚄", title: "t1", sub: "t1s" },
     { ico: "🚌", title: "t2", sub: "t2s" },
     { ico: "⚠️", title: "t3", sub: "t3s" },
@@ -179,18 +192,44 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
         </div>
       </div>
 
-      {isDaedunsan && (
+      {(isDaedunsan || (transit?.trains.length ?? 0) > 0) && (
         <div className="panel">
           <h3>{t("pnTransit")}</h3>
-          {transit.map((s) => (
-            <div key={s.title} className="step">
-              <span className="ico">{s.ico}</span>
-              <div>
-                <b>{t(s.title)}</b>
-                <small>{t(s.sub)}</small>
+          {(transit?.trains.length ?? 0) > 0 && transit?.hub && (
+            <>
+              <div className="step">
+                <span className="ico">🚄</span>
+                <div>
+                  <b>
+                    Seoul → {lang === "ko" ? transit.hub.ko : transit.hub.en}
+                  </b>
+                  <small>{t("tzTrains")}</small>
+                </div>
               </div>
-            </div>
-          ))}
+              {transit.trains.map((tr) => (
+                <div key={tr.dep + tr.type} className="step">
+                  <span className="ico">🎫</span>
+                  <div>
+                    <b className="num">
+                      {tr.dep} → {tr.arr}
+                    </b>
+                    <small>{tr.type}</small>
+                  </div>
+                </div>
+              ))}
+              <p className="datasrc">{t("tagoSrc")}</p>
+            </>
+          )}
+          {isDaedunsan &&
+            staticTransit.map((s) => (
+              <div key={s.title} className="step">
+                <span className="ico">{s.ico}</span>
+                <div>
+                  <b>{t(s.title)}</b>
+                  <small>{t(s.sub)}</small>
+                </div>
+              </div>
+            ))}
         </div>
       )}
 

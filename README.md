@@ -65,8 +65,8 @@ cp .env.example .env.local
 | `GET /api/safety` | 기상청 초단기실황 (기온·강수 → 폭염/우천 판정) + 일몰 계산 | ✅ 라이브 |
 | `GET /api/nearby` | TourAPI 영문 위치기반 주변 관광지 | ✅ 라이브 |
 | `GET /api/temples` | 행안부 전통사찰 (CSV 정제본) | ✅ 정적 |
-| `GET /api/seasonal` | 월별 계절 추천 (TourAPI 축제 연동 예정) | 정적 |
-| 교통 (TAGO 시외버스·열차) | 터미널·역 ID 매핑 필요 | 예정 |
+| `GET /api/seasonal` | 월별 계절 픽 + TourAPI 진행 중 축제 (산 30km 매칭) | ✅ 라이브 |
+| `GET /api/transit` | TAGO 열차 시간표 (서울→허브역, 역 ID 런타임 해석) | ⏳ 승인 대기 |
 
 ## 주요 기능
 

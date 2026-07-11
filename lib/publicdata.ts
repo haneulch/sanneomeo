@@ -50,6 +50,65 @@ export async function fetchTop100(): Promise<Record<string, unknown>[]> {
   return extractItems(json);
 }
 
+/** 한국관광공사 TourAPI 영문 — 진행 중 축제 (좌표 포함) */
+export async function fetchFestivals(fromYmd: string): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(
+    "https://apis.data.go.kr/B551011/EngService2/searchFestival2",
+    {
+      MobileOS: "ETC",
+      MobileApp: "SanNeomeo",
+      _type: "json",
+      eventStartDate: fromYmd,
+      arrange: "A",
+      numOfRows: "100",
+      pageNo: "1",
+    },
+    21600 // 6시간 캐시
+  );
+  return extractItems(json);
+}
+
+/**
+ * TAGO 열차정보 — 도시코드/역목록/출도착 시간표.
+ * 주의: 이 서비스는 활용신청 승인 전이면 게이트웨이가 "Unexpected errors"를
+ * 반환한다 (JSON 아님 → null 폴백). 승인되면 코드 수정 없이 라이브 전환.
+ */
+export async function fetchTrainCityCodes(): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(
+    "https://apis.data.go.kr/1613000/TrainInfoService1/getCtyCodeList1",
+    { _type: "json", numOfRows: "50", pageNo: "1" }
+  );
+  return extractItems(json);
+}
+
+export async function fetchTrainStations(cityCode: string): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(
+    "https://apis.data.go.kr/1613000/TrainInfoService1/getCtyAcctoTrainSttnList1",
+    { _type: "json", cityCode, numOfRows: "200", pageNo: "1" }
+  );
+  return extractItems(json);
+}
+
+export async function fetchTrainSchedule(
+  depPlaceId: string,
+  arrPlaceId: string,
+  ymd: string
+): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(
+    "https://apis.data.go.kr/1613000/TrainInfoService1/getStrtpntAlocFndTrainInfo1",
+    {
+      _type: "json",
+      depPlaceId,
+      arrPlaceId,
+      depPlandTime: ymd,
+      numOfRows: "8",
+      pageNo: "1",
+    },
+    3600
+  );
+  return extractItems(json);
+}
+
 /** 한국관광공사 TourAPI 영문 — 좌표 기반 주변 관광지 */
 export async function fetchNearbyTour(
   lng: number,
