@@ -36,6 +36,7 @@ interface Nearby {
 interface Transit {
   hub?: { ko: string; en: string };
   trains: { dep: string; arr: string; type: string; fare: number }[];
+  poi?: { name: string; type: string }[];
 }
 
 const YDS: Record<Mountain["d"], string> = {
@@ -192,7 +193,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
         </div>
       </div>
 
-      {(isDaedunsan || (transit?.trains.length ?? 0) > 0) && (
+      {(isDaedunsan || (transit?.trains.length ?? 0) > 0 || (transit?.poi?.length ?? 0) > 0) && (
         <div className="panel">
           <h3>{t("pnTransit")}</h3>
           {(transit?.trains.length ?? 0) > 0 && transit?.hub && (
@@ -218,6 +219,20 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
                 </div>
               ))}
               <p className="datasrc">{t("tagoSrc")}</p>
+            </>
+          )}
+          {(transit?.poi?.length ?? 0) > 0 && (
+            <>
+              {transit?.poi?.map((p) => (
+                <div key={p.name} className="step">
+                  <span className="ico">🚏</span>
+                  <div>
+                    <b>{p.name}</b>
+                    <small>{t("poiTitle")}{p.type ? ` · ${p.type}` : ""}</small>
+                  </div>
+                </div>
+              ))}
+              <p className="datasrc">{t("poiSrc")}</p>
             </>
           )}
           {isDaedunsan &&

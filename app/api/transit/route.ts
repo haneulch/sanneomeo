@@ -3,6 +3,7 @@ import {
   fetchTrainCityCodes,
   fetchTrainStations,
   fetchTrainSchedule,
+  fetchTransitPoi,
 } from "@/lib/publicdata";
 import { TRANSIT_HUBS, SEOUL_STATION } from "@/data/transit-hubs";
 
@@ -29,18 +30,46 @@ function hhmm(v: unknown): string {
   return s.length >= 12 ? `${s.slice(8, 10)}:${s.slice(10, 12)}` : s;
 }
 
+/** 교통시설POI 응답 필드명이 확정 전이라 후보 키를 순서대로 시도 */
+function poiName(r: Record<string, unknown>): string {
+  return str(r.poiNm ?? r.placeNm ?? r.frtrlNm ?? r.name ?? r.title);
+}
+function poiType(r: Record<string, unknown>): string {
+  return str(r.placeTpeCd ?? r.placeTpeNm ?? r.type ?? "");
+}
+
+async function loadTransitPoi(ko: string) {
+  try {
+    const raw = await fetchTransitPoi(ko);
+    return raw
+      .map((r) => ({ name: poiName(r), type: poiType(r) }))
+      .filter((p) => p.name)
+      .slice(0, 5);
+  } catch {
+    return [];
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const ko = searchParams.get("m") ?? "";
   const hub = TRANSIT_HUBS[ko];
-  if (!hub) return NextResponse.json({ trains: [], source: "static" });
+
+  // 100대명산 교통시설POI (승인 전 빈 배열) — 허브 매핑 없는 산도 시도
+  const poiPromise = ko ? loadTransitPoi(ko) : Promise.resolve([]);
+
+  if (!hub) {
+    return NextResponse.json({ trains: [], poi: await poiPromise, source: "static" });
+  }
 
   try {
     const [depId, arrId] = await Promise.all([
       resolveStationId(SEOUL_STATION.city, SEOUL_STATION.station),
       resolveStationId(hub.city, hub.station),
     ]);
-    if (!depId || !arrId) return NextResponse.json({ trains: [], source: "static" });
+    if (!depId || !arrId) {
+      return NextResponse.json({ trains: [], poi: await poiPromise, source: "static" });
+    }
 
     const ymd = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" })
       .format(new Date())
@@ -60,9 +89,10 @@ export async function GET(request: Request) {
     return NextResponse.json({
       hub: { ko: hub.station, en: hub.stationEn },
       trains,
+      poi: await poiPromise,
       source: trains.length ? "live" : "static",
     });
   } catch {
-    return NextResponse.json({ trains: [], source: "static" });
+    return NextResponse.json({ trains: [], poi: await poiPromise, source: "static" });
   }
 }

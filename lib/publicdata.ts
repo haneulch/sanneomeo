@@ -105,6 +105,50 @@ export async function fetchTrainSchedule(
   return extractItems(json);
 }
 
+/**
+ * 한국등산트레킹지원센터 100대명산 POI 계열 (B553662).
+ * srchFrtrlNm = 산명. 승인 전에는 게이트웨이가 "Forbidden" 반환 → [] 폴백.
+ */
+async function fetchKomountPoi(
+  service: string,
+  op: string,
+  frtrlNm: string
+): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(`https://apis.data.go.kr/B553662/${service}/${op}`, {
+    type: "json",
+    _type: "json",
+    numOfRows: "30",
+    pageNo: "1",
+    srchFrtrlNm: frtrlNm,
+  });
+  return extractItems(json);
+}
+
+/** 100대명산 교통시설POI — 등산로 입구 버스정류장·터미널 등 */
+export function fetchTransitPoi(frtrlNm: string) {
+  return fetchKomountPoi("trnspPoiInfoService", "getTrnspPoiInfoList", frtrlNm);
+}
+
+/** 100대명산 봉우리POI */
+export function fetchPeakPoi(frtrlNm: string) {
+  return fetchKomountPoi("peakPoiInfoService", "getPeakPoiInfoList", frtrlNm);
+}
+
+/** 100대명산 숲길POI (약수터·표지판·쉼터 등 16종) */
+export function fetchTrailPoi(frtrlNm: string) {
+  return fetchKomountPoi("fmmtnFrtrlPoiInfoService", "getFmmtnFrtrlPoiInfoList", frtrlNm);
+}
+
+/** 국립산림과학원 산악기상 관측소 목록·실황 (1400377/mtweather) */
+export async function fetchMtWeather(): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(
+    "https://apis.data.go.kr/1400377/mtweather/mountListSearch",
+    { _type: "json", numOfRows: "200", pageNo: "1" },
+    1800
+  );
+  return extractItems(json);
+}
+
 /** 한국관광공사 TourAPI 영문 — 좌표 기반 주변 관광지 */
 export async function fetchNearbyTour(
   lng: number,
