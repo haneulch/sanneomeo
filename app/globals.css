@@ -585,3 +585,10 @@
 
   /* 외국어 선택 시 산 이름 한국어 병기 */
   .kosub{margin-left:6px; font-size:.82em; font-weight:600; color:var(--ink-soft); opacity:.85}
+
+  /* photo credit caption on detail hero */
+  .detail-hero .photo-credit{
+    position:absolute; right:10px; top:8px; z-index:3;
+    font-size:9px; font-weight:600; color:rgba(255,255,255,.8);
+    background:rgba(10,20,14,.4); padding:3px 7px; border-radius:99px; backdrop-filter:blur(3px);
+  }

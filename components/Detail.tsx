@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import type { Lang, Mountain } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
-import { mapUrl } from "@/lib/geo";
+import { mapUrl, distKm } from "@/lib/geo";
 import { mountainName, koSubtitle } from "@/lib/name";
+import { romanize } from "@/lib/romanize";
 import { TEMPLE_QUERY } from "@/data/temple-map";
 
 interface Props {
@@ -65,14 +66,16 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const [temple, setTemple] = useState<Temple | null>(null);
   const [safety, setSafety] = useState<Safety | null>(null);
   const [nearby, setNearby] = useState<Nearby[]>([]);
+  const [food, setFood] = useState<Nearby[]>([]);
   const [transit, setTransit] = useState<Transit | null>(null);
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [poi, setPoi] = useState<Poi>({ peaks: [], features: [] });
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<{ image: string; copyright: string } | null>(null);
 
   useEffect(() => {
     setSafety(null);
     setNearby([]);
+    setFood([]);
     setTemple(null);
     setTransit(null);
     setFestivals([]);
@@ -81,7 +84,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
 
     fetch(`/api/photo?m=${encodeURIComponent(m.ko)}`)
       .then((r) => r.json())
-      .then((d) => setPhoto(d.image ?? null))
+      .then((d) => setPhoto(d.image ? { image: d.image, copyright: d.copyright ?? "" } : null))
       .catch(() => setPhoto(null));
 
     fetch(`/api/poi?m=${encodeURIComponent(m.ko)}`)
@@ -103,8 +106,14 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
 
     fetch(`/api/nearby?lat=${m.lat}&lng=${m.lng}&lang=${lang}`)
       .then((r) => r.json())
-      .then((d) => setNearby(d.items ?? []))
-      .catch(() => setNearby([]));
+      .then((d) => {
+        setNearby(d.items ?? []);
+        setFood(d.food ?? []);
+      })
+      .catch(() => {
+        setNearby([]);
+        setFood([]);
+      });
 
     fetch(`/api/festivals?lat=${m.lat}&lng=${m.lng}&lang=${lang}`)
       .then((r) => r.json())
@@ -124,7 +133,9 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
     }
   }, [m, lang]);
 
-  const collectStamp = async () => {
+  const [stamping, setStamping] = useState(false);
+
+  const doStamp = async () => {
     try {
       await fetch("/api/stamps", {
         method: "POST",
@@ -137,21 +148,43 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
     onStamp();
   };
 
-  const isDaedunsan = m.ko === "대둔산";
+  // GPS 인증: 산 반경 5km 이내에서만 스탬프. 위치 거부/미지원 시 데모 허용.
+  const GEOFENCE_KM = 5;
+  const collectStamp = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation || !m.lat || !m.lng) {
+      doStamp();
+      return;
+    }
+    setStamping(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        setStamping(false);
+        const d = distKm({ lat: p.coords.latitude, lng: p.coords.longitude }, m);
+        if (d <= GEOFENCE_KM) doStamp();
+        else if (confirm(t("stampTooFar").replace("{km}", String(Math.round(d))))) doStamp();
+      },
+      () => {
+        setStamping(false);
+        doStamp(); // 위치 거부 → 데모 허용
+      },
+      { timeout: 5000, enableHighAccuracy: true }
+    );
+  };
+
   const koSub = koSubtitle(m, lang);
   const title = lang === "ko" ? m.ko : `${mountainName(m, lang)}${koSub ? ` ${koSub}` : ""}`;
   const distKmRT = (m.h * 2).toFixed(1);
 
-  const staticTransit = [
-    { ico: "🚄", title: "t1", sub: "t1s" },
-    { ico: "🚌", title: "t2", sub: "t2s" },
-    { ico: "⚠️", title: "t3", sub: "t3s" },
-  ];
-  const after = [
-    { ico: "🏯", title: "a1", sub: "a1s" },
-    { ico: "🍜", title: "a2", sub: "a2s" },
-    { ico: "♨️", title: "a3", sub: "a3s" },
-  ];
+  // 한국어만 있는 고유명사(사찰·봉우리·POI): ko 그대로, 외국어면 로마자 + 한글 병기
+  const place = (ko: string) =>
+    lang === "ko" ? (
+      <>{ko}</>
+    ) : (
+      <>
+        {romanize(ko)}
+        <span className="kosub">{ko}</span>
+      </>
+    );
 
   return (
     <section className="screen active" id="scr-detail">
@@ -162,8 +195,9 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
         {photo ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="hero-photo" src={photo} alt="" />
+            <img className="hero-photo" src={photo.image} alt="" />
             <div className="hero-overlay" />
+            <span className="photo-credit">{t("photoCredit")}</span>
           </>
         ) : (
           <svg viewBox="0 0 414 170" preserveAspectRatio="none" aria-hidden="true">
@@ -197,10 +231,13 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       <div className="stats">
         <div className="stat">
           <b>{t(`df_${m.d}`)}</b>
-          <span>{YDS[m.d]}</span>
+          <span>{m.est ? t("estimated") : YDS[m.d]}</span>
         </div>
         <div className="stat">
-          <b className="num">{m.h} h</b>
+          <b className="num">
+            {m.est ? "≈ " : ""}
+            {m.h} h
+          </b>
           <span>{t("stRound")}</span>
         </div>
         <div className="stat">
@@ -268,7 +305,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
             <div key={p.name + i} className="step">
               <span className="ico">🏔</span>
               <div>
-                <b>{p.name}</b>
+                <b>{place(p.name)}</b>
                 {p.elev && <small>{p.elev}</small>}
               </div>
             </div>
@@ -284,7 +321,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
             <div key={f.name + i} className="step">
               <span className="ico">💧</span>
               <div>
-                <b>{f.name}</b>
+                <b>{place(f.name)}</b>
                 {f.type && <small>{f.type}</small>}
               </div>
             </div>
@@ -293,7 +330,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
         </div>
       )}
 
-      {(isDaedunsan || (transit?.trains.length ?? 0) > 0 || (transit?.poi?.length ?? 0) > 0) && (
+      {((transit?.trains.length ?? 0) > 0 || (transit?.poi?.length ?? 0) > 0) && (
         <div className="panel">
           <h3>{t("pnTransit")}</h3>
           {(transit?.trains.length ?? 0) > 0 && transit?.hub && (
@@ -323,11 +360,11 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
           )}
           {(transit?.poi?.length ?? 0) > 0 && (
             <>
-              {transit?.poi?.map((p) => (
-                <div key={p.name} className="step">
+              {transit?.poi?.map((p, i) => (
+                <div key={p.name + i} className="step">
                   <span className="ico">🚏</span>
                   <div>
-                    <b>{p.name}</b>
+                    <b>{place(p.name)}</b>
                     <small>{t("poiTitle")}{p.type ? ` · ${p.type}` : ""}</small>
                   </div>
                 </div>
@@ -335,31 +372,34 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
               <p className="datasrc">{t("poiSrc")}</p>
             </>
           )}
-          {isDaedunsan &&
-            staticTransit.map((s) => (
-              <div key={s.title} className="step">
-                <span className="ico">{s.ico}</span>
-                <div>
-                  <b>{t(s.title)}</b>
-                  <small>{t(s.sub)}</small>
-                </div>
-              </div>
-            ))}
         </div>
       )}
 
-      {isDaedunsan && (
+      {food.length > 0 && (
         <div className="panel">
           <h3>{t("pnAfter")}</h3>
-          {after.map((s) => (
-            <div key={s.title} className="step">
-              <span className="ico">{s.ico}</span>
+          {temple && temple.history && (
+            <div className="step">
+              <span className="ico">🏯</span>
               <div>
-                <b>{t(s.title)}</b>
-                <small>{t(s.sub)}</small>
+                <b>{place(temple.name)}</b>
+                <small>{t("afterTemple")}</small>
+              </div>
+            </div>
+          )}
+          {food.map((f, i) => (
+            <div key={f.title + i} className="step">
+              <span className="ico">🍜</span>
+              <div>
+                <b>{f.title}</b>
+                <small>
+                  {f.distM > 0 ? `${(f.distM / 1000).toFixed(1)} km · ` : ""}
+                  {f.addr}
+                </small>
               </div>
             </div>
           ))}
+          <p className="datasrc">{t("nearbySrc")}</p>
         </div>
       )}
 
@@ -407,7 +447,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
             <span className="ico">📜</span>
             <div>
               <b>
-                {temple.name}
+                {place(temple.name)}
                 {temple.founded ? ` · ${temple.founded}` : ""}
               </b>
               <small>{temple.history}</small>
@@ -419,8 +459,8 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
 
       <div className="local-note" dangerouslySetInnerHTML={{ __html: t("localNote") }} />
 
-      <button className="cta" onClick={collectStamp}>
-        {t("cta")}
+      <button className="cta" onClick={collectStamp} disabled={stamping}>
+        {stamping ? t("stampChecking") : t("cta")}
       </button>
     </section>
   );

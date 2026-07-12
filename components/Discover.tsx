@@ -246,7 +246,7 @@ export default function Discover({ lang, setLang, taste, onEditTaste, onOpenMoun
                   {t("lblDiff")} <i>{t(`df_${m.d}`)}</i>
                 </span>
                 <span>
-                  {t("lblDur")} <i className="num">{m.h} h</i>
+                  {t("lblDur")} <i className="num">{m.est ? "≈" : ""}{m.h} h</i>
                 </span>
                 {m.temple && (
                   <span>

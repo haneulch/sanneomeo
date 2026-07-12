@@ -179,26 +179,29 @@ export async function fetchKeywordSpots(keyword: string): Promise<Record<string,
   return extractItems(json);
 }
 
-/** 한국관광공사 TourAPI — 좌표 기반 주변 관광지 (언어별 서비스) */
+/** 한국관광공사 TourAPI — 좌표 기반 주변 항목 (언어별 서비스, 콘텐츠 타입 선택) */
 export async function fetchNearbyTour(
   lng: number,
   lat: number,
   lang = "en",
+  contentTypeId = "",
   radius = 15000
 ): Promise<Record<string, unknown>[]> {
   const service = TOUR_SERVICE[lang] ?? "EngService2";
+  const params: Record<string, string> = {
+    MobileOS: "ETC",
+    MobileApp: "SanNeomeo",
+    _type: "json",
+    mapX: String(lng),
+    mapY: String(lat),
+    radius: String(radius),
+    numOfRows: "10",
+    pageNo: "1",
+  };
+  if (contentTypeId) params.contentTypeId = contentTypeId;
   const json = await fetchApi(
     `https://apis.data.go.kr/B551011/${service}/locationBasedList2`,
-    {
-      MobileOS: "ETC",
-      MobileApp: "SanNeomeo",
-      _type: "json",
-      mapX: String(lng),
-      mapY: String(lat),
-      radius: String(radius),
-      numOfRows: "10",
-      pageNo: "1",
-    },
+    params,
     3600
   );
   return extractItems(json);

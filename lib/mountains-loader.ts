@@ -58,6 +58,7 @@ export async function loadMountains(): Promise<{ items: Mountain[]; source: "liv
         h: estHours(elev),
         temple: false,
         got: false,
+        est: true, // 고도 기반 추정 (실난이도 소스 없음)
         lat: num(r.lat ?? r.latitude),
         lng: num(r.lot ?? r.lon ?? r.longitude),
       };

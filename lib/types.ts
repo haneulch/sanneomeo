@@ -30,4 +30,5 @@ export interface Mountain {
   got: boolean;
   lat: number;
   lng: number;
+  est?: boolean; // 난이도·소요시간이 고도 기반 추정치인지 (라이브 82산). curated는 false/undefined
 }

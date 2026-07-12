@@ -170,6 +170,7 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
                   </>
                 )}
                 {t(`rg_${m.r}`)} · <span className="num">{m.elev.toLocaleString()} m</span> ·{" "}
+                {m.est ? "≈" : ""}
                 {m.h} h{m.temple ? " · 🏯" : ""}
               </small>
             </span>
