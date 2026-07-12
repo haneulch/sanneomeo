@@ -39,6 +39,14 @@ interface Transit {
   poi?: { name: string; type: string }[];
 }
 
+interface Festival {
+  title: string;
+  start: string;
+  end: string;
+  distKm: number;
+}
+const fmtMd = (ymd: string) => (ymd.length === 8 ? `${ymd.slice(4, 6)}.${ymd.slice(6, 8)}` : "");
+
 const YDS: Record<Mountain["d"], string> = {
   easy: "YDS Class 1",
   mod: "YDS Class 2",
@@ -51,12 +59,14 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const [safety, setSafety] = useState<Safety | null>(null);
   const [nearby, setNearby] = useState<Nearby[]>([]);
   const [transit, setTransit] = useState<Transit | null>(null);
+  const [festivals, setFestivals] = useState<Festival[]>([]);
 
   useEffect(() => {
     setSafety(null);
     setNearby([]);
     setTemple(null);
     setTransit(null);
+    setFestivals([]);
 
     fetch(`/api/transit?m=${encodeURIComponent(m.ko)}`)
       .then((r) => r.json())
@@ -74,6 +84,11 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       .then((r) => r.json())
       .then((d) => setNearby(d.items ?? []))
       .catch(() => setNearby([]));
+
+    fetch(`/api/festivals?lat=${m.lat}&lng=${m.lng}&lang=${lang}`)
+      .then((r) => r.json())
+      .then((d) => setFestivals(d.items ?? []))
+      .catch(() => setFestivals([]));
 
     const tq = TEMPLE_QUERY[m.ko];
     if (tq) {
@@ -273,6 +288,24 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {festivals.length > 0 && (
+        <div className="panel">
+          <h3>🎪 {t("pnFestival")}</h3>
+          {festivals.map((f, i) => (
+            <div key={f.title + i} className="step">
+              <span className="ico">🎉</span>
+              <div>
+                <b>{f.title}</b>
+                <small>
+                  {fmtMd(f.start)}–{fmtMd(f.end)} · {f.distKm} km
+                </small>
+              </div>
+            </div>
+          ))}
+          <p className="datasrc">{t("festSrc")}</p>
         </div>
       )}
 
