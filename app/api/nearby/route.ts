@@ -12,7 +12,8 @@ export async function GET(request: Request) {
   const lng = Number(searchParams.get("lng") ?? 127.322);
   const lang = searchParams.get("lang") ?? "en";
 
-  const raw = await fetchNearbyTour(lng, lat, lang);
+  let raw = await fetchNearbyTour(lng, lat, lang);
+  if (!raw.length && lang !== "en") raw = await fetchNearbyTour(lng, lat, "en"); // 2순위 영어
   const items = raw
     .map((r) => ({
       title: String(r.title ?? ""),

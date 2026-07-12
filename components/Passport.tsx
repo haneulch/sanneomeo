@@ -5,6 +5,7 @@ import type { Lang } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { MOUNTAINS } from "@/data/mountains";
 import { provName } from "@/lib/provinces";
+import { mountainName } from "@/lib/name";
 
 interface Props {
   lang: Lang;
@@ -54,8 +55,9 @@ function fmtDate(iso: string): string {
 }
 function localizeName(s: Stamp, lang: Lang): string {
   const m = MOUNTAINS.find((x) => x.ko === s.mountainKo);
-  if (m) return m[lang];
-  return lang === "en" ? s.mountainEn : s.mountainKo;
+  if (m) return mountainName(m, lang);
+  // 큐레이션 밖 산: ko 선택→한글, 그 외→영문(2순위)
+  return lang === "ko" ? s.mountainKo : s.mountainEn || s.mountainKo;
 }
 
 interface ShareInfo {

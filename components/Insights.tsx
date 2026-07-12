@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Lang } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { provName } from "@/lib/provinces";
+import { mountainName } from "@/lib/name";
 import { MOUNTAINS } from "@/data/mountains";
 
 interface Props {
@@ -24,8 +25,8 @@ const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep
 
 function mtnName(ko: string, en: string, lang: Lang): string {
   const m = MOUNTAINS.find((x) => x.ko === ko);
-  if (m) return lang === "en" ? m.en : m[lang];
-  return lang === "en" ? en : ko;
+  if (m) return mountainName(m, lang);
+  return lang === "ko" ? ko : en || ko;
 }
 
 export default function Insights({ lang }: Props) {

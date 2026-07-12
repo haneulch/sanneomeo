@@ -19,7 +19,8 @@ function kstToday(): { ymd: string; monthStartYmd: string; month: number } {
 
 async function liveFestivalPicks(lang: string): Promise<SeasonalPick[]> {
   const { ymd, monthStartYmd } = kstToday();
-  const raw = await fetchFestivals(monthStartYmd, lang);
+  let raw = await fetchFestivals(monthStartYmd, lang);
+  if (!raw.length && lang !== "en") raw = await fetchFestivals(monthStartYmd, "en"); // 2순위 영어
 
   const picks: SeasonalPick[] = [];
   const usedMountains = new Set<string>();

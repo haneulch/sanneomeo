@@ -19,7 +19,8 @@ export async function GET(request: Request) {
     .format(new Date())
     .replaceAll("-", "");
   const monthStart = ymd.slice(0, 6) + "01";
-  const raw = await fetchFestivals(monthStart, lang);
+  let raw = await fetchFestivals(monthStart, lang);
+  if (!raw.length && lang !== "en") raw = await fetchFestivals(monthStart, "en"); // 2순위 영어
 
   const items = raw
     .map((f) => {
