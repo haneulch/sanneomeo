@@ -322,21 +322,6 @@ export default function Passport({ lang }: Props) {
           </div>
         );
       })}
-
-      <div className="coupon" style={{ marginTop: 20 }}>
-        <span className="pct num">10%</span>
-        <div>
-          <b>{t("c1")}</b>
-          <small>{t("c1s")}</small>
-        </div>
-      </div>
-      <div className="coupon" style={{ marginBottom: 8 }}>
-        <span className="pct num">15%</span>
-        <div>
-          <b>{t("c2")}</b>
-          <small>{t("c2s")}</small>
-        </div>
-      </div>
     </section>
   );
 }
