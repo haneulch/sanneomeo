@@ -11,6 +11,7 @@ interface Props {
   lang: Lang;
   setLang: (l: Lang) => void;
   taste: Taste;
+  onEditTaste: () => void;
   onOpenMountain: (name: string) => void;
   onOpenPassport: () => void;
 }
@@ -73,7 +74,7 @@ function recommend(list: Mountain[], taste: Taste): Rec[] {
   return scored.slice(0, 3);
 }
 
-export default function Discover({ lang, setLang, taste, onOpenMountain, onOpenPassport }: Props) {
+export default function Discover({ lang, setLang, taste, onEditTaste, onOpenMountain, onOpenPassport }: Props) {
   const t = makeT(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const [seasonal, setSeasonal] = useState<SeasonalPick[]>([]);
@@ -162,13 +163,16 @@ export default function Discover({ lang, setLang, taste, onOpenMountain, onOpenP
       </header>
 
       <div className="taste">
-        <div className="q">{t("tasteQ")}</div>
+        <div className="tastehead">
+          <div className="q">{t("tasteMine")}</div>
+          <button className="tasteedit" onClick={onEditTaste}>
+            ✎ {t("tasteEdit")}
+          </button>
+        </div>
         <div className="row">
-          {TASTE_CHIPS.map((k) => (
-            <span
-              key={k}
-              className={`chip${taste.interests.includes(k) || (k === "chipGranite" && taste.diff === "hard") ? " on" : ""}`}
-            >
+          <span className="chip on">{t(`df_${taste.diff}`)}</span>
+          {TASTE_CHIPS.filter((k) => taste.interests.includes(k)).map((k) => (
+            <span key={k} className="chip on">
               {t(k)}
             </span>
           ))}

@@ -18,6 +18,7 @@ export default function Home() {
   const [mountains, setMountains] = useState<Mountain[]>([]);
   const [selected, setSelected] = useState<Mountain>(MOUNTAINS[7]); // 대둔산 기본
   const [taste, setTaste] = useState<Taste>({ diff: "mod", dur: 1, interests: ["chipGranite", "chipTemple"] });
+  const [onboarded, setOnboarded] = useState(false); // 최초 온보딩 완료 여부
 
   useEffect(() => {
     fetch("/api/mountains")
@@ -48,8 +49,11 @@ export default function Home() {
         <Onboarding
           lang={lang}
           setLang={setLang}
+          initial={onboarded ? taste : undefined}
+          editing={onboarded}
           onDone={(t) => {
             setTaste(t);
+            setOnboarded(true);
             setScreen("home");
           }}
         />
@@ -59,6 +63,7 @@ export default function Home() {
           lang={lang}
           setLang={setLang}
           taste={taste}
+          onEditTaste={() => setScreen("onboard")}
           onOpenMountain={openDetailByName}
           onOpenPassport={() => setScreen("pass")}
         />

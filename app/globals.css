@@ -574,3 +574,11 @@
   .detail-hero .title{z-index:2}
 
   .mcard .art .cardphoto{width:100%; height:100%; object-fit:cover; display:block}
+
+  /* taste card edit */
+  .tastehead{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
+  .tastehead .q{margin-bottom:0}
+  .tasteedit{
+    font-size:11.5px; font-weight:800; color:var(--pine);
+    border:1px solid var(--pine); border-radius:99px; padding:4px 11px; flex:0 0 auto;
+  }

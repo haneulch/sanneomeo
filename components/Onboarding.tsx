@@ -8,17 +8,19 @@ interface Props {
   lang: Lang;
   setLang: (l: Lang) => void;
   onDone: (taste: Taste) => void;
+  initial?: Taste;
+  editing?: boolean;
 }
 
 const INTEREST_KEYS = ["chipGranite", "chipTemple", "chipFoliage", "chipSea", "chipSpring"];
 const DIFF_BY_INDEX: Taste["diff"][] = ["easy", "mod", "hard"];
 
-export default function Onboarding({ lang, setLang, onDone }: Props) {
+export default function Onboarding({ lang, setLang, onDone, initial, editing }: Props) {
   const t = makeT(lang);
-  const [diff, setDiff] = useState(1);
-  const [dur, setDur] = useState(1);
+  const [diff, setDiff] = useState(initial ? DIFF_BY_INDEX.indexOf(initial.diff) : 1);
+  const [dur, setDur] = useState(initial?.dur ?? 1);
   const [interests, setInterests] = useState<Set<string>>(
-    new Set(["chipGranite", "chipTemple"])
+    new Set(initial?.interests ?? ["chipGranite", "chipTemple"])
   );
 
   const toggleInterest = (k: string) =>
@@ -117,10 +119,10 @@ export default function Onboarding({ lang, setLang, onDone }: Props) {
       </div>
 
       <button className="obcta" onClick={finish}>
-        {t("obCta")}
+        {editing ? t("obSave") : t("obCta")}
       </button>
       <button className="obskip" onClick={finish}>
-        {t("obSkip")}
+        {editing ? t("obBack") : t("obSkip")}
       </button>
     </section>
   );
