@@ -106,6 +106,18 @@ export default function Discover({ lang, setLang, taste, onOpenMountain, onOpenP
   }, [menuOpen]);
 
   const recs = useMemo(() => recommend(mountains, taste), [mountains, taste]);
+  const [photos, setPhotos] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    recs.forEach((m) => {
+      if (photos[m.ko] !== undefined) return;
+      fetch(`/api/photo?m=${encodeURIComponent(m.ko)}`)
+        .then((r) => r.json())
+        .then((d) => setPhotos((p) => ({ ...p, [m.ko]: d.image ?? "" })))
+        .catch(() => setPhotos((p) => ({ ...p, [m.ko]: "" })));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recs]);
 
   return (
     <section className="screen active" id="scr-home">
@@ -205,7 +217,12 @@ export default function Discover({ lang, setLang, taste, onOpenMountain, onOpenP
         {recs.map((m, i) => (
           <button key={m.ko} className="mcard" onClick={() => onOpenMountain(m.ko)}>
             <div className="art">
-              {ART[i % ART.length]}
+              {photos[m.ko] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="cardphoto" src={photos[m.ko]} alt="" />
+              ) : (
+                ART[i % ART.length]
+              )}
               <span className="badge">
                 {m.match}% {t("matchWord")}
               </span>

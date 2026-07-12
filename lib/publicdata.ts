@@ -161,6 +161,24 @@ export async function fetchMtWeather(): Promise<Record<string, unknown>[]> {
   return extractItems(json);
 }
 
+/** 한국관광공사 TourAPI — 키워드(산명) 관광지 검색, 대표 사진 확보용 */
+export async function fetchKeywordSpots(keyword: string): Promise<Record<string, unknown>[]> {
+  const json = await fetchApi(
+    "https://apis.data.go.kr/B551011/KorService2/searchKeyword2",
+    {
+      MobileOS: "ETC",
+      MobileApp: "SanNeomeo",
+      _type: "json",
+      keyword,
+      contentTypeId: "12", // 관광지
+      numOfRows: "10",
+      pageNo: "1",
+    },
+    86400
+  );
+  return extractItems(json);
+}
+
 /** 한국관광공사 TourAPI — 좌표 기반 주변 관광지 (언어별 서비스) */
 export async function fetchNearbyTour(
   lng: number,

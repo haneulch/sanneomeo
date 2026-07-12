@@ -67,6 +67,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const [transit, setTransit] = useState<Transit | null>(null);
   const [festivals, setFestivals] = useState<Festival[]>([]);
   const [poi, setPoi] = useState<Poi>({ peaks: [], features: [] });
+  const [photo, setPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     setSafety(null);
@@ -75,6 +76,12 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
     setTransit(null);
     setFestivals([]);
     setPoi({ peaks: [], features: [] });
+    setPhoto(null);
+
+    fetch(`/api/photo?m=${encodeURIComponent(m.ko)}`)
+      .then((r) => r.json())
+      .then((d) => setPhoto(d.image ?? null))
+      .catch(() => setPhoto(null));
 
     fetch(`/api/poi?m=${encodeURIComponent(m.ko)}`)
       .then((r) => r.json())
@@ -150,25 +157,33 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
         {t("back")}
       </button>
       <div className="detail-hero">
-        <svg viewBox="0 0 414 170" preserveAspectRatio="none" aria-hidden="true">
-          <rect width="414" height="170" fill="#4E9F44" />
-          <path
-            d="M0,170 L80,40 L150,120 L225,22 L295,104 L360,58 L414,110 L414,170 Z"
-            fill="#3C7A34"
-          />
-          <path
-            d="M0,170 L60,116 L160,152 L245,100 L330,148 L414,118 L414,170 Z"
-            fill="#2A5422"
-          />
-          <circle cx="345" cy="34" r="12" fill="#F2C94C" />
-          <rect x="0" y="0" width="414" height="170" fill="url(#g1)" />
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset=".45" stopColor="rgba(0,0,0,0)" />
-              <stop offset="1" stopColor="rgba(10,20,14,.55)" />
-            </linearGradient>
-          </defs>
-        </svg>
+        {photo ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="hero-photo" src={photo} alt="" />
+            <div className="hero-overlay" />
+          </>
+        ) : (
+          <svg viewBox="0 0 414 170" preserveAspectRatio="none" aria-hidden="true">
+            <rect width="414" height="170" fill="#4E9F44" />
+            <path
+              d="M0,170 L80,40 L150,120 L225,22 L295,104 L360,58 L414,110 L414,170 Z"
+              fill="#3C7A34"
+            />
+            <path
+              d="M0,170 L60,116 L160,152 L245,100 L330,148 L414,118 L414,170 Z"
+              fill="#2A5422"
+            />
+            <circle cx="345" cy="34" r="12" fill="#F2C94C" />
+            <rect x="0" y="0" width="414" height="170" fill="url(#g1)" />
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset=".45" stopColor="rgba(0,0,0,0)" />
+                <stop offset="1" stopColor="rgba(10,20,14,.55)" />
+              </linearGradient>
+            </defs>
+          </svg>
+        )}
         <div className="title">
           <b>{title}</b>
           <span>
