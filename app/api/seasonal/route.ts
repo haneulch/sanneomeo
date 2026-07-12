@@ -17,9 +17,9 @@ function kstToday(): { ymd: string; monthStartYmd: string; month: number } {
   return { ymd, monthStartYmd: ymd.slice(0, 6) + "01", month: Number(ymd.slice(4, 6)) };
 }
 
-async function liveFestivalPicks(): Promise<SeasonalPick[]> {
+async function liveFestivalPicks(lang: string): Promise<SeasonalPick[]> {
   const { ymd, monthStartYmd } = kstToday();
-  const raw = await fetchFestivals(monthStartYmd);
+  const raw = await fetchFestivals(monthStartYmd, lang);
 
   const picks: SeasonalPick[] = [];
   const usedMountains = new Set<string>();
@@ -54,10 +54,11 @@ async function liveFestivalPicks(): Promise<SeasonalPick[]> {
   return picks;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const lang = new URL(request.url).searchParams.get("lang") ?? "en";
   const { month } = kstToday();
   const staticPicks = SEASONAL[month] ?? SEASONAL_DEFAULT;
-  const festivals = await liveFestivalPicks();
+  const festivals = await liveFestivalPicks(lang);
 
   return NextResponse.json({
     month,

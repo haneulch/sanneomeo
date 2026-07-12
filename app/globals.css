@@ -506,3 +506,26 @@
   /* mystery badge = tappable hint */
   .bdg.mystery{cursor:pointer; background:none; border:none; font:inherit}
   .bdg.mystery small{color:#8E7CC3; font-weight:700}
+
+  /* ===== insights dashboard ===== */
+  .ins-head{padding:26px 20px 0}
+  .ins-head h1{font-size:22px; font-weight:800; letter-spacing:-.01em; margin-top:4px}
+  .ins-head p{font-size:12.5px; color:var(--ink-soft); margin-top:5px; line-height:1.5}
+  .kpirow{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 20px 0}
+  .kpi{background:var(--card); border-radius:13px; box-shadow:var(--shadow); padding:12px 6px; text-align:center}
+  .kpi b{display:block; font-size:22px; color:var(--pine)}
+  .kpi span{font-size:9.5px; color:var(--ink-soft); font-weight:700; letter-spacing:.02em; line-height:1.2; display:block; margin-top:3px}
+  .ins-card{background:var(--card); border-radius:var(--r); box-shadow:var(--shadow); margin:14px 20px 0; padding:16px}
+  .ins-card h3{font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--pine); margin-bottom:12px}
+  .barrow{display:flex; align-items:center; gap:9px; margin:7px 0}
+  .barrow .bl{flex:0 0 92px; font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .barrow .bt{flex:1; height:9px; background:var(--mist); border-radius:99px; overflow:hidden}
+  .barrow .bt i{display:block; height:100%; border-radius:99px; background:var(--pine)}
+  .barrow .bt i.amber{background:var(--amber)}
+  .barrow .bv{flex:0 0 auto; font-size:12px; font-weight:800; color:var(--ink-soft); min-width:18px; text-align:right}
+  .monthbars{display:flex; align-items:flex-end; gap:6px; height:110px; padding-top:6px}
+  .mb{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:3px}
+  .mb .mbbar{width:70%; min-height:3px; background:linear-gradient(180deg,var(--moss),var(--pine)); border-radius:5px 5px 0 0}
+  .mb .mbv{font-size:10px; font-weight:800; color:var(--ink-soft)}
+  .mb .mbl{font-size:9.5px; color:var(--ink-soft); font-weight:600}
+  .ins-note{margin:14px 20px 8px; font-size:11.5px; color:var(--ink-soft); line-height:1.55; padding:12px 14px; background:var(--mist); border-radius:12px}

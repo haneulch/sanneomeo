@@ -10,6 +10,12 @@ export type Region =
 
 export type Difficulty = "easy" | "mod" | "hard";
 
+export interface Taste {
+  diff: Difficulty;
+  dur: number; // 0 반나절, 1 하루, 2 1박2일
+  interests: string[]; // chipGranite, chipTemple, ...
+}
+
 export interface Mountain {
   en: string;
   ko: string;

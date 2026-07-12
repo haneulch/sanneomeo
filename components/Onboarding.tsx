@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import type { Lang } from "@/lib/types";
+import type { Lang, Taste } from "@/lib/types";
 import { LANGS, makeT } from "@/lib/i18n";
 
 interface Props {
   lang: Lang;
   setLang: (l: Lang) => void;
-  onDone: () => void;
+  onDone: (taste: Taste) => void;
 }
 
 const INTEREST_KEYS = ["chipGranite", "chipTemple", "chipFoliage", "chipSea", "chipSpring"];
+const DIFF_BY_INDEX: Taste["diff"][] = ["easy", "mod", "hard"];
 
 export default function Onboarding({ lang, setLang, onDone }: Props) {
   const t = makeT(lang);
@@ -33,6 +34,9 @@ export default function Onboarding({ lang, setLang, onDone }: Props) {
     { em: "⛰", title: "obD2", sub: "obD2s" },
     { em: "🧗", title: "obD3", sub: "obD3s" },
   ];
+
+  const finish = () =>
+    onDone({ diff: DIFF_BY_INDEX[diff], dur, interests: [...interests] });
 
   return (
     <section className="screen active" id="scr-onboard">
@@ -112,10 +116,10 @@ export default function Onboarding({ lang, setLang, onDone }: Props) {
         </div>
       </div>
 
-      <button className="obcta" onClick={onDone}>
+      <button className="obcta" onClick={finish}>
         {t("obCta")}
       </button>
-      <button className="obskip" onClick={onDone}>
+      <button className="obskip" onClick={finish}>
         {t("obSkip")}
       </button>
     </section>

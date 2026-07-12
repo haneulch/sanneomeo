@@ -1,22 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Lang, Mountain } from "@/lib/types";
+import type { Lang, Mountain, Taste } from "@/lib/types";
 import { MOUNTAINS } from "@/data/mountains";
 import Onboarding from "@/components/Onboarding";
 import Discover from "@/components/Discover";
 import Detail from "@/components/Detail";
 import MountainList from "@/components/MountainList";
 import Passport from "@/components/Passport";
+import Insights from "@/components/Insights";
 import TabBar from "@/components/TabBar";
 
-export type Screen = "onboard" | "home" | "detail" | "list" | "pass";
+export type Screen = "onboard" | "home" | "detail" | "list" | "pass" | "insights";
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
   const [screen, setScreen] = useState<Screen>("onboard");
   const [mountains, setMountains] = useState<Mountain[]>([]);
   const [selected, setSelected] = useState<Mountain>(MOUNTAINS[7]); // 대둔산 기본
+  const [taste, setTaste] = useState<Taste>({ diff: "mod", dur: 1, interests: ["chipGranite", "chipTemple"] });
 
   useEffect(() => {
     fetch("/api/mountains")
@@ -44,12 +46,20 @@ export default function Home() {
   return (
     <div className={`phone${screen === "onboard" ? " ob" : ""}`}>
       {screen === "onboard" && (
-        <Onboarding lang={lang} setLang={setLang} onDone={() => setScreen("home")} />
+        <Onboarding
+          lang={lang}
+          setLang={setLang}
+          onDone={(t) => {
+            setTaste(t);
+            setScreen("home");
+          }}
+        />
       )}
       {screen === "home" && (
         <Discover
           lang={lang}
           setLang={setLang}
+          taste={taste}
           onOpenMountain={openDetailByName}
           onOpenPassport={() => setScreen("pass")}
         />
@@ -66,6 +76,7 @@ export default function Home() {
         <MountainList lang={lang} mountains={mountains} onOpenDetail={openDetail} />
       )}
       {screen === "pass" && <Passport lang={lang} />}
+      {screen === "insights" && <Insights lang={lang} />}
       {screen !== "onboard" && <TabBar lang={lang} screen={screen} onGo={setScreen} />}
     </div>
   );

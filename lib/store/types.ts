@@ -37,6 +37,7 @@ export interface StoreAdapter {
   getUser(id: string): Promise<User | null>;
   upsertUser(user: User): Promise<User>;
   listStamps(userId: string): Promise<Stamp[]>;
+  listAllStamps(): Promise<Stamp[]>; // 대시보드 집계용 (전체 사용자)
   hasStamp(userId: string, mountainKo: string): Promise<boolean>;
   addStamp(userId: string, stamp: NewStamp): Promise<Stamp>;
 }

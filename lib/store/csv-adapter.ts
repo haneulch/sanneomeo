@@ -52,6 +52,10 @@ export class CsvStore implements StoreAdapter {
       .sort((a, b) => a.stampedAt.localeCompare(b.stampedAt));
   }
 
+  async listAllStamps(): Promise<Stamp[]> {
+    return (await readRows(STAMPS)).map((r) => r as unknown as Stamp);
+  }
+
   async hasStamp(userId: string, mountainKo: string): Promise<boolean> {
     return (await readRows(STAMPS)).some(
       (r) => r.userId === userId && r.mountainKo === mountainKo
