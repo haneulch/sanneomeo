@@ -14,7 +14,6 @@ const TABS: { screen: Screen; glyph: string; label: string; activeOn: Screen[] }
   { screen: "home", glyph: "⛰", label: "tbDiscover", activeOn: ["home", "detail"] },
   { screen: "list", glyph: "🗺", label: "tbList", activeOn: ["list"] },
   { screen: "pass", glyph: "📖", label: "tbPassport", activeOn: ["pass"] },
-  { screen: "insights", glyph: "📊", label: "tbInsights", activeOn: ["insights"] },
 ];
 
 export default function TabBar({ lang, screen, onGo }: Props) {

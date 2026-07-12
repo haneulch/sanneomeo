@@ -8,10 +8,9 @@ import Discover from "@/components/Discover";
 import Detail from "@/components/Detail";
 import MountainList from "@/components/MountainList";
 import Passport from "@/components/Passport";
-import Insights from "@/components/Insights";
 import TabBar from "@/components/TabBar";
 
-export type Screen = "onboard" | "home" | "detail" | "list" | "pass" | "insights";
+export type Screen = "onboard" | "home" | "detail" | "list" | "pass";
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
@@ -76,7 +75,6 @@ export default function Home() {
         <MountainList lang={lang} mountains={mountains} onOpenDetail={openDetail} />
       )}
       {screen === "pass" && <Passport lang={lang} />}
-      {screen === "insights" && <Insights lang={lang} />}
       {screen !== "onboard" && <TabBar lang={lang} screen={screen} onGo={setScreen} />}
     </div>
   );
