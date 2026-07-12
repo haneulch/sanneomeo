@@ -1,45 +1,46 @@
   html{-webkit-text-size-adjust:100%; text-size-adjust:100%}
+  /* ── 팔레트: 신록 (Fresh Green) ── */
   :root{
-    --paper:#F5F5EF;
+    --paper:#F1F7EA;
     --card:#FFFFFF;
-    --ink:#1D2A23;
-    --ink-soft:#54655B;
-    --pine:#2C5943;
-    --pine-deep:#1E3F30;
-    --moss:#8FAE93;
-    --mist:#E4E9E2;
-    --amber:#D99A3D;
-    --amber-soft:#F4E7CF;
-    --line:#DDE3DA;
-    --shadow:0 8px 28px rgba(29,42,35,.10);
+    --ink:#223C1D;
+    --ink-soft:#5E7156;
+    --pine:#4E9F44;
+    --pine-deep:#2F5E2A;
+    --moss:#8FCB6A;
+    --mist:#E3EFD3;
+    --amber:#E3A52A;
+    --amber-soft:#FBEFCB;
+    --line:#E1ECD5;
+    --shadow:0 8px 28px rgba(45,80,30,.10);
     --r:18px;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --paper:#131B16;
-      --card:#1C2620;
-      --ink:#EDF1EC;
-      --ink-soft:#9FB0A5;
-      --pine:#7FB79A;
-      --pine-deep:#0F241A;
-      --moss:#5C7A63;
-      --mist:#233029;
-      --amber:#E2AC58;
-      --amber-soft:#3A2F1C;
-      --line:#2C3A32;
+      --paper:#111710;
+      --card:#1A2118;
+      --ink:#E9F1E2;
+      --ink-soft:#9DB094;
+      --pine:#7FCB6C;
+      --pine-deep:#0E1C0A;
+      --moss:#557A46;
+      --mist:#222E1D;
+      --amber:#E6BC5A;
+      --amber-soft:#372F17;
+      --line:#2B3826;
       --shadow:0 8px 28px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="light"]{
-    --paper:#F5F5EF; --card:#FFFFFF; --ink:#1D2A23; --ink-soft:#54655B;
-    --pine:#2C5943; --pine-deep:#1E3F30; --moss:#8FAE93; --mist:#E4E9E2;
-    --amber:#D99A3D; --amber-soft:#F4E7CF; --line:#DDE3DA;
-    --shadow:0 8px 28px rgba(29,42,35,.10);
+    --paper:#F1F7EA; --card:#FFFFFF; --ink:#223C1D; --ink-soft:#5E7156;
+    --pine:#4E9F44; --pine-deep:#2F5E2A; --moss:#8FCB6A; --mist:#E3EFD3;
+    --amber:#E3A52A; --amber-soft:#FBEFCB; --line:#E1ECD5;
+    --shadow:0 8px 28px rgba(45,80,30,.10);
   }
   :root[data-theme="dark"]{
-    --paper:#131B16; --card:#1C2620; --ink:#EDF1EC; --ink-soft:#9FB0A5;
-    --pine:#7FB79A; --pine-deep:#0F241A; --moss:#5C7A63; --mist:#233029;
-    --amber:#E2AC58; --amber-soft:#3A2F1C; --line:#2C3A32;
+    --paper:#111710; --card:#1A2118; --ink:#E9F1E2; --ink-soft:#9DB094;
+    --pine:#7FCB6C; --pine-deep:#0E1C0A; --moss:#557A46; --mist:#222E1D;
+    --amber:#E6BC5A; --amber-soft:#372F17; --line:#2B3826;
     --shadow:0 8px 28px rgba(0,0,0,.35);
   }
 
