@@ -24,6 +24,9 @@ interface Badge {
   earned: boolean;
   date: string;
 }
+interface Mystery {
+  hint: Record<Lang, string>;
+}
 const CH_TITLE_KEY: Record<string, string> = {
   first: "ch0Title",
   temple: "ch2Title",
@@ -122,6 +125,8 @@ export default function Passport({ lang }: Props) {
   const [stamps, setStamps] = useState<Stamp[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [mysteries, setMysteries] = useState<Mystery[]>([]);
+  const [hint, setHint] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -134,6 +139,7 @@ export default function Passport({ lang }: Props) {
       .then((d) => {
         setChallenges(d.challenges ?? []);
         setBadges(d.badges ?? []);
+        setMysteries(d.mysteries ?? []);
       })
       .catch(() => {});
   }, []);
@@ -244,14 +250,32 @@ export default function Passport({ lang }: Props) {
             <small>{t("chDone")}</small>
           </div>
         ))}
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="bdg mystery">
+        {mysteries.map((m, i) => (
+          <button
+            key={i}
+            className="bdg mystery"
+            onClick={() => setHint(m.hint[lang])}
+          >
             <span className="medal">?</span>
             <b>???</b>
-            <small>{t("bdgHiddenTag")}</small>
-          </div>
+            <small>{t("bdgHintTap")}</small>
+          </button>
         ))}
       </div>
+
+      {hint && (
+        <div className="sheetwrap" onClick={() => setHint(null)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <b className="sheettitle">🔮 {t("hintTitle")}</b>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink-soft)" }}>{hint}</p>
+            <div className="sheetbtns">
+              <button className="primary" onClick={() => setHint(null)}>
+                {t("shareClose")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="hiddenhint">
         <span className="em">🔮</span>

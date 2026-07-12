@@ -502,3 +502,7 @@
     background:var(--mist); color:var(--ink);
   }
   .sheetbtns button.primary{background:var(--pine); color:var(--paper)}
+
+  /* mystery badge = tappable hint */
+  .bdg.mystery{cursor:pointer; background:none; border:none; font:inherit}
+  .bdg.mystery small{color:#8E7CC3; font-weight:700}

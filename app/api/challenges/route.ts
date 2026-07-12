@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
 import { getCurrentUser } from "@/lib/auth";
 import { loadMountains } from "@/lib/mountains-loader";
-import { HIDDEN_MOUNTAINS } from "@/data/hidden";
+import { HIDDEN, HIDDEN_MOUNTAINS } from "@/data/hidden";
 
 export const runtime = "nodejs";
 
@@ -69,5 +69,9 @@ export async function GET() {
       .map((p) => ({ id: "prov", prov: p.prov, emoji: "🏅", earned: true, date: "" })),
   ];
 
-  return NextResponse.json({ total, challenges, badges });
+  // 아직 못 찾은 히든 산 — 이름 없이 힌트만 (? 뱃지 탭 시 노출)
+  const stampedKo = new Set(stamps.map((s) => s.mountainKo));
+  const mysteries = HIDDEN.filter((h) => !stampedKo.has(h.ko)).map((h) => ({ hint: h.hint }));
+
+  return NextResponse.json({ total, challenges, badges, mysteries });
 }
