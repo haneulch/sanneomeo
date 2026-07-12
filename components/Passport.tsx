@@ -4,10 +4,37 @@ import { useEffect, useRef, useState } from "react";
 import type { Lang } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { MOUNTAINS } from "@/data/mountains";
+import { provName } from "@/lib/provinces";
 
 interface Props {
   lang: Lang;
 }
+
+interface Challenge {
+  id: "first" | "temple" | "grand" | "prov";
+  prov?: string;
+  done: number;
+  total: number;
+  complete: boolean;
+}
+interface Badge {
+  id: "first" | "hidden" | "pilgrim" | "grand" | "prov";
+  prov?: string;
+  emoji: string;
+  earned: boolean;
+  date: string;
+}
+const CH_TITLE_KEY: Record<string, string> = {
+  first: "ch0Title",
+  temple: "ch2Title",
+  grand: "ch3Title",
+};
+const BADGE_KEY: Record<string, string> = {
+  first: "bdg1",
+  hidden: "bdg2",
+  pilgrim: "bdgPilgrim",
+  grand: "bdg4",
+};
 
 interface Stamp {
   id: string;
@@ -93,6 +120,8 @@ export default function Passport({ lang }: Props) {
   const t = makeT(lang);
   const [shareOpen, setShareOpen] = useState(false);
   const [stamps, setStamps] = useState<Stamp[]>([]);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -100,7 +129,21 @@ export default function Passport({ lang }: Props) {
       .then((r) => r.json())
       .then((d) => setStamps(d.stamps ?? []))
       .catch(() => setStamps([]));
+    fetch("/api/challenges")
+      .then((r) => r.json())
+      .then((d) => {
+        setChallenges(d.challenges ?? []);
+        setBadges(d.badges ?? []);
+      })
+      .catch(() => {});
   }, []);
+
+  const chTitle = (c: Challenge) =>
+    c.id === "prov" ? `${provName(c.prov!, lang)} ${t("chCircuit")}` : t(CH_TITLE_KEY[c.id]);
+  const badgeLabel = (b: Badge) =>
+    b.id === "prov" ? `${provName(b.prov!, lang)} ${t("chCircuit")}` : t(BADGE_KEY[b.id]);
+  const coreBadges = badges.filter((b) => b.id !== "prov");
+  const provBadges = badges.filter((b) => b.id === "prov" && b.earned);
 
   const peaks = stamps.filter((s) => s.kind === "peak").length;
   const temples = stamps.filter((s) => s.kind === "temple").length;
@@ -187,26 +230,20 @@ export default function Passport({ lang }: Props) {
         </h2>
       </div>
       <div className="badgerow">
-        <div className="bdg earned">
-          <span className="medal">🥾</span>
-          <b>{t("bdg1")}</b>
-          <small>JUN 28</small>
-        </div>
-        <div className="bdg earned">
-          <span className="medal">💎</span>
-          <b>{t("bdg2")}</b>
-          <small>JUL 05</small>
-        </div>
-        <div className="bdg locked">
-          <span className="medal">🔒</span>
-          <b>{t("bdg3")}</b>
-          <small>{t("bdgLocked")}</small>
-        </div>
-        <div className="bdg locked">
-          <span className="medal">🔒</span>
-          <b>{t("bdg4")}</b>
-          <small>{t("bdgLocked")}</small>
-        </div>
+        {coreBadges.map((b) => (
+          <div key={b.id} className={`bdg ${b.earned ? "earned" : "locked"}`}>
+            <span className="medal">{b.earned ? b.emoji : "🔒"}</span>
+            <b>{badgeLabel(b)}</b>
+            <small>{b.earned && b.date ? fmtDate(b.date) : t("bdgLocked")}</small>
+          </div>
+        ))}
+        {provBadges.map((b) => (
+          <div key={"prov-" + b.prov} className="bdg earned">
+            <span className="medal">{b.emoji}</span>
+            <b>{badgeLabel(b)}</b>
+            <small>{t("chDone")}</small>
+          </div>
+        ))}
         {[0, 1, 2].map((i) => (
           <div key={i} className="bdg mystery">
             <span className="medal">?</span>
@@ -228,64 +265,39 @@ export default function Passport({ lang }: Props) {
         </h2>
       </div>
 
-      <div className="challenge done" style={{ marginTop: 14 }}>
-        <div className="top">
-          <b>{t("ch0Title")}</b>
-          <span className="donechip">{t("chDone")}</span>
-        </div>
-        <div className="bar">
-          <i style={{ width: "100%" }} />
-        </div>
-        <div className="reward">
-          <span>🥾</span>
-          <span>{t("ch0Rw")}</span>
-        </div>
-      </div>
-
-      <div className="challenge">
-        <div className="top">
-          <b>{t("chTitle")}</b>
-          <span className="cnt num">4 / 5</span>
-        </div>
-        <div className="bar">
-          <i style={{ width: "80%" }} />
-        </div>
-        <p>{t("chDesc")}</p>
-        <div className="reward">
-          <span>🏅</span>
-          <span>{t("chRw")}</span>
-        </div>
-      </div>
-
-      <div className="challenge">
-        <div className="top">
-          <b>{t("ch2Title")}</b>
-          <span className="cnt num">2 / 3</span>
-        </div>
-        <div className="bar">
-          <i style={{ width: "66%" }} />
-        </div>
-        <p>{t("ch2Desc")}</p>
-        <div className="reward">
-          <span>🏯</span>
-          <span>{t("ch2Rw")}</span>
-        </div>
-      </div>
-
-      <div className="challenge">
-        <div className="top">
-          <b>{t("ch3Title")}</b>
-          <span className="cnt num">4 / 100</span>
-        </div>
-        <div className="bar gold">
-          <i style={{ width: "4%" }} />
-        </div>
-        <p>{t("ch3Desc")}</p>
-        <div className="reward">
-          <span>👑</span>
-          <span>{t("ch3Rw")}</span>
-        </div>
-      </div>
+      {challenges.map((c) => {
+        const pct = Math.min(100, Math.round((c.done / c.total) * 100));
+        const gold = c.id === "grand";
+        const emoji =
+          c.id === "first" ? "🥾" : c.id === "temple" ? "🏯" : c.id === "grand" ? "👑" : "🏅";
+        return (
+          <div
+            key={c.id + (c.prov ?? "")}
+            className={`challenge${c.complete ? " done" : ""}`}
+            style={{ marginTop: 14 }}
+          >
+            <div className="top">
+              <b>{chTitle(c)}</b>
+              {c.complete ? (
+                <span className="donechip">{t("chDone")}</span>
+              ) : (
+                <span className="cnt num">
+                  {c.done} / {c.total}
+                </span>
+              )}
+            </div>
+            <div className={`bar${gold ? " gold" : ""}`}>
+              <i style={{ width: `${pct}%` }} />
+            </div>
+            <div className="reward">
+              <span>{emoji}</span>
+              <span>
+                {t("chReward")}: {chTitle(c)} {t("bdgWord")}
+              </span>
+            </div>
+          </div>
+        );
+      })}
 
       <div className="coupon" style={{ marginTop: 20 }}>
         <span className="pct num">10%</span>

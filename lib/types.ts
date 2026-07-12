@@ -16,6 +16,7 @@ export interface Mountain {
   ja: string;
   zh: string;
   r: Region;
+  prov?: string; // 시도 canonical 짧은 라벨 (예: "전북") — 도별 챌린지용
   d: Difficulty;
   elev: number;
   h: number;
