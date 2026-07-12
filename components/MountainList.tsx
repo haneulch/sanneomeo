@@ -34,6 +34,7 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
   const [region, setRegion] = useState<RegionFilter>("all");
   const [diff, setDiff] = useState<DiffFilter>("all");
   const [sort, setSort] = useState<Sort>("rec");
+  const [query, setQuery] = useState("");
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [locSrc, setLocSrc] = useState<LocSrc>(null);
 
@@ -60,8 +61,16 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
   };
 
   const items = useMemo(() => {
+    const q = query.trim().toLowerCase();
     let list = mountains.filter(
-      (m) => (region === "all" || m.r === region) && (diff === "all" || m.d === diff)
+      (m) =>
+        (region === "all" || m.r === region) &&
+        (diff === "all" || m.d === diff) &&
+        (!q ||
+          m.ko.toLowerCase().includes(q) ||
+          m.en.toLowerCase().includes(q) ||
+          m.ja.toLowerCase().includes(q) ||
+          m.zh.toLowerCase().includes(q))
     );
     if (sort === "dist" && userLoc) {
       list = [...list].sort((a, b) => distKm(userLoc, a) - distKm(userLoc, b));
@@ -69,7 +78,7 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
       list = [...list].sort((a, b) => b.elev - a.elev);
     }
     return list;
-  }, [mountains, region, diff, sort, userLoc]);
+  }, [mountains, region, diff, sort, userLoc, query]);
 
   let countLine = `${items.length} ${t("cntSuffix")}`;
   if (sort === "dist" && locSrc) {
@@ -82,6 +91,20 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
         <span className="eyebrow">{t("lsEyebrow")}</span>
         <h1>{t("lsTitle")}</h1>
         <p className="cnt num">{countLine}</p>
+      </div>
+      <div className="searchbox">
+        <span>🔍</span>
+        <input
+          type="text"
+          value={query}
+          placeholder={t("searchPlaceholder")}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {query && (
+          <button className="clr" onClick={() => setQuery("")} aria-label="clear">
+            ✕
+          </button>
+        )}
       </div>
       <div className="fltwrap">
         <div className="fltrow">

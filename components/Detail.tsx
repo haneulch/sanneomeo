@@ -25,6 +25,7 @@ interface Safety {
   weather: { tempC: number | null; rainMm: number | null } | null;
   alert: { level: "advisory" | "warning"; type: string } | null;
   access: "open" | "partial" | "closed";
+  accessReason: "spring" | "fall" | null;
 }
 
 interface Nearby {
@@ -221,9 +222,19 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
           <div className="safeitem">
             <span className="k">🚧 {t("sfAccess")}</span>
             <b className={safety?.access === "open" ? "ok" : "warn"}>
-              {t(safety?.access === "open" ? "sfOpen" : "sfClosed")}
+              {t(
+                safety?.access === "open"
+                  ? "sfOpen"
+                  : safety?.access === "partial"
+                    ? "sfPartial"
+                    : "sfClosed"
+              )}
             </b>
-            <small>{t("sfAccessNote")}</small>
+            <small>
+              {safety?.accessReason
+                ? t(safety.accessReason === "spring" ? "sfSpring" : "sfFall")
+                : t("sfAccessNote")}
+            </small>
           </div>
           <div className="safeitem">
             <span className="k">🚨 {t("sfEmg")}</span>

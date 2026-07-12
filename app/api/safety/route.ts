@@ -22,11 +22,27 @@ export async function GET(request: Request) {
   if (kma?.tempC != null && kma.tempC >= 33) alert = { level: "advisory", type: "heat" };
   else if (kma?.rainMm != null && kma.rainMm > 0) alert = { level: "advisory", type: "rain" };
 
+  // 입산통제: 산림청 산불조심기간 (봄 2/1~5/15, 가을 11/1~12/15) → 일부 통제.
+  // 국립산림과학원 산불위험예보 API 승인 시 위험지수 기반으로 override 예정.
+  const access = fireCautionAccess();
+
   return NextResponse.json({
     sunset: sunsetKST(lat, lng),
     weather: kma, // { tempC, rainMm } | null
     alert,
-    access: "open" as const,
+    access: access.status,
+    accessReason: access.reason, // "spring" | "fall" | null
     source: kma ? "live" : "static",
   });
+}
+
+/** 산림청 산불조심기간 기반 입산통제 상태 (KST 기준) */
+function fireCautionAccess(): { status: "open" | "partial" | "closed"; reason: string | null } {
+  const kst = new Date(Date.now() + 9 * 3600 * 1000);
+  const mo = kst.getUTCMonth() + 1;
+  const day = kst.getUTCDate();
+  const md = mo * 100 + day;
+  if (md >= 201 && md <= 515) return { status: "partial", reason: "spring" };
+  if (md >= 1101 && md <= 1215) return { status: "partial", reason: "fall" };
+  return { status: "open", reason: null };
 }
