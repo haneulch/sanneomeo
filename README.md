@@ -135,6 +135,24 @@ data/store/
 - 패스포트 스탬프 그리드·진행률은 CSV에서 실시간 렌더
 - 주의: 서버리스 환경은 파일시스템 휘발성 — 프로덕션은 DB 어댑터로 교체 전제
 
+## Docker / 배포
+
+Next standalone 기반 멀티스테이지 이미지. GitHub Actions가 main 푸시·태그 시
+GHCR(`ghcr.io`)로 빌드·푸시.
+
+```bash
+# 로컬 빌드·실행
+docker build -t sanneomeo .
+docker run -p 3000:3000 -e DATA_GO_KR_KEY=발급키 sanneomeo
+
+# GHCR 이미지 (Actions가 푸시)
+docker run -p 3000:3000 -e DATA_GO_KR_KEY=... ghcr.io/<owner>/mountain-search:latest
+```
+
+- 인증키는 런타임 env `DATA_GO_KR_KEY`로 주입 (빌드 시 불필요)
+- CSV 사용자 데이터는 컨테이너 내 `/app/data/store` — 휘발성. 영속하려면 볼륨 마운트(`-v`) 또는 DB 어댑터로 교체
+- 워크플로: [.github/workflows/docker.yml](.github/workflows/docker.yml)
+
 ## 기술 구성
 
 - Next.js 15 (App Router) + React 19 + TypeScript
