@@ -45,6 +45,11 @@ interface Festival {
   end: string;
   distKm: number;
 }
+
+interface Poi {
+  peaks: { name: string; elev: string }[];
+  features: { name: string; type: string }[];
+}
 const fmtMd = (ymd: string) => (ymd.length === 8 ? `${ymd.slice(4, 6)}.${ymd.slice(6, 8)}` : "");
 
 const YDS: Record<Mountain["d"], string> = {
@@ -60,6 +65,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   const [nearby, setNearby] = useState<Nearby[]>([]);
   const [transit, setTransit] = useState<Transit | null>(null);
   const [festivals, setFestivals] = useState<Festival[]>([]);
+  const [poi, setPoi] = useState<Poi>({ peaks: [], features: [] });
 
   useEffect(() => {
     setSafety(null);
@@ -67,6 +73,12 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
     setTemple(null);
     setTransit(null);
     setFestivals([]);
+    setPoi({ peaks: [], features: [] });
+
+    fetch(`/api/poi?m=${encodeURIComponent(m.ko)}`)
+      .then((r) => r.json())
+      .then((d) => setPoi({ peaks: d.peaks ?? [], features: d.features ?? [] }))
+      .catch(() => setPoi({ peaks: [], features: [] }));
 
     fetch(`/api/transit?m=${encodeURIComponent(m.ko)}`)
       .then((r) => r.json())
@@ -220,6 +232,38 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
           </div>
         </div>
       </div>
+
+      {poi.peaks.length > 0 && (
+        <div className="panel">
+          <h3>⛰ {t("pnPeaks")}</h3>
+          {poi.peaks.map((p, i) => (
+            <div key={p.name + i} className="step">
+              <span className="ico">🏔</span>
+              <div>
+                <b>{p.name}</b>
+                {p.elev && <small>{p.elev}</small>}
+              </div>
+            </div>
+          ))}
+          <p className="datasrc">{t("poiSrc")}</p>
+        </div>
+      )}
+
+      {poi.features.length > 0 && (
+        <div className="panel">
+          <h3>🌿 {t("pnTrailPoi")}</h3>
+          {poi.features.map((f, i) => (
+            <div key={f.name + i} className="step">
+              <span className="ico">💧</span>
+              <div>
+                <b>{f.name}</b>
+                {f.type && <small>{f.type}</small>}
+              </div>
+            </div>
+          ))}
+          <p className="datasrc">{t("poiSrc")}</p>
+        </div>
+      )}
 
       {(isDaedunsan || (transit?.trains.length ?? 0) > 0 || (transit?.poi?.length ?? 0) > 0) && (
         <div className="panel">
