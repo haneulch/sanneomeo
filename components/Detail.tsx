@@ -123,16 +123,16 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       </button>
       <div className="detail-hero">
         <svg viewBox="0 0 414 170" preserveAspectRatio="none" aria-hidden="true">
-          <rect width="414" height="170" fill="#3E6B52" />
+          <rect width="414" height="170" fill="#4E9F44" />
           <path
             d="M0,170 L80,40 L150,120 L225,22 L295,104 L360,58 L414,110 L414,170 Z"
-            fill="#2C5140"
+            fill="#3C7A34"
           />
           <path
             d="M0,170 L60,116 L160,152 L245,100 L330,148 L414,118 L414,170 Z"
-            fill="#1E3F30"
+            fill="#2A5422"
           />
-          <circle cx="345" cy="34" r="12" fill="#E8C87D" />
+          <circle cx="345" cy="34" r="12" fill="#F2C94C" />
           <rect x="0" y="0" width="414" height="170" fill="url(#g1)" />
           <defs>
             <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">

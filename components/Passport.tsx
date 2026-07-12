@@ -42,11 +42,11 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info
   if (!ctx) return;
 
   // 배경
-  ctx.fillStyle = "#1E3F30";
+  ctx.fillStyle = "#2F5E2A";
   ctx.fillRect(0, 0, W, H);
 
   // 능선 실루엣
-  ctx.fillStyle = "rgba(44,89,67,.7)";
+  ctx.fillStyle = "rgba(60,122,52,.7)";
   ctx.beginPath();
   ctx.moveTo(0, 780);
   [[110, 640], [200, 720], [320, 600], [430, 700], [560, 630], [720, 710]].forEach(([x, y]) =>
@@ -54,7 +54,7 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info
   );
   ctx.lineTo(720, 900); ctx.lineTo(0, 900); ctx.closePath(); ctx.fill();
 
-  ctx.fillStyle = "rgba(143,174,147,.45)";
+  ctx.fillStyle = "rgba(143,203,106,.45)";
   ctx.beginPath();
   ctx.moveTo(0, 900);
   [[90, 760], [220, 830], [360, 740], [500, 820], [640, 770], [720, 800]].forEach(([x, y]) =>
@@ -63,7 +63,7 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info
   ctx.lineTo(720, 900); ctx.closePath(); ctx.fill();
 
   // 해
-  ctx.fillStyle = "#D99A3D";
+  ctx.fillStyle = "#F2C94C";
   ctx.beginPath(); ctx.arc(600, 150, 42, 0, Math.PI * 2); ctx.fill();
 
   const center = (txt: string, y: number, font: string, color = "#F2F5EF") => {
@@ -78,7 +78,7 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info
 
   center(t("ppTitle"), 260, "700 32px sans-serif", "#E4E9E2");
 
-  center(`${info.total} / 100`, 400, "800 110px sans-serif", "#D99A3D");
+  center(`${info.total} / 100`, 400, "800 110px sans-serif", "#F2C94C");
   center(t("h100Title"), 450, "600 24px sans-serif", "rgba(242,245,239,.85)");
 
   center(info.emojis || "⛰", 540, "48px sans-serif");

@@ -24,10 +24,10 @@ const CARDS = [
     why: "m1Why",
     art: (
       <svg viewBox="0 0 380 96" preserveAspectRatio="none" aria-hidden="true">
-        <rect width="380" height="96" fill="#3E6B52" />
-        <path d="M0,96 L70,26 L130,70 L200,14 L260,62 L330,34 L380,68 L380,96 Z" fill="#2C5140" />
-        <path d="M0,96 L55,66 L140,88 L215,58 L300,86 L380,64 L380,96 Z" fill="#1E3F30" />
-        <circle cx="318" cy="22" r="9" fill="#E8C87D" />
+        <rect width="380" height="96" fill="#4E9F44" />
+        <path d="M0,96 L70,26 L130,70 L200,14 L260,62 L330,34 L380,68 L380,96 Z" fill="#3C7A34" />
+        <path d="M0,96 L55,66 L140,88 L215,58 L300,86 L380,64 L380,96 Z" fill="#2A5422" />
+        <circle cx="318" cy="22" r="9" fill="#F2C94C" />
       </svg>
     ),
   },
@@ -42,10 +42,10 @@ const CARDS = [
     why: "m2Why",
     art: (
       <svg viewBox="0 0 380 96" preserveAspectRatio="none" aria-hidden="true">
-        <rect width="380" height="96" fill="#5F7F5E" />
-        <path d="M0,96 Q95,18 190,58 T380,40 L380,96 Z" fill="#40634A" />
-        <path d="M0,96 Q120,58 240,80 T380,70 L380,96 Z" fill="#28483A" />
-        <circle cx="60" cy="24" r="8" fill="#E8C87D" />
+        <rect width="380" height="96" fill="#6FB84E" />
+        <path d="M0,96 Q95,18 190,58 T380,40 L380,96 Z" fill="#3C7A34" />
+        <path d="M0,96 Q120,58 240,80 T380,70 L380,96 Z" fill="#2A5422" />
+        <circle cx="60" cy="24" r="8" fill="#F2C94C" />
       </svg>
     ),
   },
@@ -60,10 +60,10 @@ const CARDS = [
     why: "m3Why",
     art: (
       <svg viewBox="0 0 380 96" preserveAspectRatio="none" aria-hidden="true">
-        <rect width="380" height="96" fill="#476B58" />
-        <path d="M0,96 L90,20 L165,64 L240,30 L320,72 L380,48 L380,96 Z" fill="#31543F" />
-        <path d="M0,96 L80,70 L180,90 L260,66 L380,88 L380,96 Z" fill="#1E3D2E" />
-        <circle cx="200" cy="18" r="8" fill="#E8C87D" />
+        <rect width="380" height="96" fill="#4E9F44" />
+        <path d="M0,96 L90,20 L165,64 L240,30 L320,72 L380,48 L380,96 Z" fill="#3C7A34" />
+        <path d="M0,96 L80,70 L180,90 L260,66 L380,88 L380,96 Z" fill="#2A5422" />
+        <circle cx="200" cy="18" r="8" fill="#F2C94C" />
       </svg>
     ),
   },
@@ -126,15 +126,15 @@ export default function Discover({ lang, setLang, onOpenMountain, onOpenPassport
         <svg className="ridge" viewBox="0 0 414 110" preserveAspectRatio="none" aria-hidden="true">
           <path
             d="M0,95 L60,52 L110,80 L170,30 L225,72 L285,42 L340,78 L414,50 L414,110 L0,110 Z"
-            fill="#2C5943"
+            fill="#3C7A34"
             opacity=".55"
           />
           <path
             d="M0,110 L45,78 L105,96 L160,62 L230,94 L300,66 L360,92 L414,74 L414,110 Z"
-            fill="#8FAE93"
+            fill="#8FCB6A"
             opacity=".8"
           />
-          <circle cx="330" cy="26" r="11" fill="#D99A3D" opacity=".9" />
+          <circle cx="330" cy="26" r="11" fill="#F2C94C" opacity=".9" />
         </svg>
       </header>
 
