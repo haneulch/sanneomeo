@@ -88,6 +88,19 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
     }
   }, [m]);
 
+  const collectStamp = async () => {
+    try {
+      await fetch("/api/stamps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mountainKo: m.ko, mountainEn: m.en, kind: "peak" }),
+      });
+    } catch {
+      /* 폴백: 저장 실패해도 패스포트로 이동 */
+    }
+    onStamp();
+  };
+
   const isDaedunsan = m.ko === "대둔산";
   const title = lang === "en" ? `${m.en} ${m.ko}` : m[lang];
   const distKmRT = (m.h * 2).toFixed(1);
@@ -301,7 +314,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
 
       <div className="local-note" dangerouslySetInnerHTML={{ __html: t("localNote") }} />
 
-      <button className="cta" onClick={onStamp}>
+      <button className="cta" onClick={collectStamp}>
         {t("cta")}
       </button>
     </section>

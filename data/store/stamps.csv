@@ -1,0 +1,5 @@
+id,userId,mountainKo,mountainEn,kind,stampedAt
+seed-daedunsan,demo-user,대둔산,Daedunsan,peak,2026-06-28T02:00:00.000Z
+seed-seonunsan,demo-user,선운산,Seonunsan,temple,2026-07-02T02:00:00.000Z
+seed-moaksan,demo-user,모악산,Moaksan,peak,2026-07-05T02:00:00.000Z
+seed-naejangsan,demo-user,내장산,Naejangsan,peak,2026-07-09T02:00:00.000Z

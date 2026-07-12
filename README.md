@@ -113,6 +113,28 @@ cp .env.example .env.local
 | 버스·열차 API (TAGO) | 국토교통부 | 대중교통 안내 |
 | 지역 축제·행사 | TourAPI | 계절 연계 추천 |
 
+## 저장 계층 (사용자 데이터)
+
+계정·DB 없이 동작. 스탬프 등 사용자 생성 데이터는 CSV 파일에 영속.
+구글 로그인 + DB는 나중에 교체 지점 두 곳만 바꿔 붙인다.
+
+```
+lib/store/
+  types.ts        # 도메인 타입(User·Stamp) + StoreAdapter 인터페이스
+  csv.ts          # CSV 파싱·직렬화
+  csv-adapter.ts  # StoreAdapter의 CSV 구현 (data/store/*.csv)
+  index.ts        # getStore() ← DB 붙이면 이 한 줄만 PrismaStore로 교체
+lib/auth.ts       # getCurrentUser() ← 구글 로그인 붙이면 세션 기반으로 교체
+data/store/
+  users.csv       # 사용자 (시드: demo-user)
+  stamps.csv      # 스탬프 (시드: 4좌)
+```
+
+- `GET/POST /api/stamps` — 스탬프 조회·적립 (중복 무시). 상세의 "산행 시작"이 POST
+- `GET /api/me` — 현재 사용자 (지금은 데모 고정)
+- 패스포트 스탬프 그리드·진행률은 CSV에서 실시간 렌더
+- 주의: 서버리스 환경은 파일시스템 휘발성 — 프로덕션은 DB 어댑터로 교체 전제
+
 ## 기술 구성
 
 - Next.js 15 (App Router) + React 19 + TypeScript

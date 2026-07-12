@@ -3,12 +3,38 @@
 import { useEffect, useRef, useState } from "react";
 import type { Lang } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
+import { MOUNTAINS } from "@/data/mountains";
 
 interface Props {
   lang: Lang;
 }
 
-function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string) {
+interface Stamp {
+  id: string;
+  mountainKo: string;
+  mountainEn: string;
+  kind: "peak" | "temple";
+  stampedAt: string;
+}
+
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  return `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+function localizeName(s: Stamp, lang: Lang): string {
+  const m = MOUNTAINS.find((x) => x.ko === s.mountainKo);
+  if (m) return m[lang];
+  return lang === "en" ? s.mountainEn : s.mountainKo;
+}
+
+interface ShareInfo {
+  total: number;
+  emojis: string;
+  names: string;
+}
+
+function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info: ShareInfo) {
   const W = 720, H = 900;
   canvas.width = W;
   canvas.height = H;
@@ -52,11 +78,11 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string) {
 
   center(t("ppTitle"), 260, "700 32px sans-serif", "#E4E9E2");
 
-  center("4 / 100", 400, "800 110px sans-serif", "#D99A3D");
+  center(`${info.total} / 100`, 400, "800 110px sans-serif", "#D99A3D");
   center(t("h100Title"), 450, "600 24px sans-serif", "rgba(242,245,239,.85)");
 
-  center("⛰ ⛰ ⛰ ⛰", 540, "48px sans-serif");
-  center(`${t("sDaedun")} · ${t("sSeonun")} · ${t("sMoak")} · ${t("sNaejang")}`, 585, "500 22px sans-serif", "#CBD8CC");
+  center(info.emojis || "⛰", 540, "48px sans-serif");
+  center(info.names, 585, "500 22px sans-serif", "#CBD8CC");
 
   center(`🥾 ${t("bdg1")}   💎 ${t("bdg2")}`, 650, "600 26px sans-serif", "#F4E7CF");
 
@@ -66,12 +92,30 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string) {
 export default function Passport({ lang }: Props) {
   const t = makeT(lang);
   const [shareOpen, setShareOpen] = useState(false);
+  const [stamps, setStamps] = useState<Stamp[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (shareOpen && canvasRef.current) drawShareCard(canvasRef.current, t);
+    fetch("/api/stamps")
+      .then((r) => r.json())
+      .then((d) => setStamps(d.stamps ?? []))
+      .catch(() => setStamps([]));
+  }, []);
+
+  const peaks = stamps.filter((s) => s.kind === "peak").length;
+  const temples = stamps.filter((s) => s.kind === "temple").length;
+  const total = stamps.length;
+
+  const shareInfo: ShareInfo = {
+    total,
+    emojis: stamps.slice(0, 6).map((s) => (s.kind === "temple" ? "🏯" : "⛰")).join(" "),
+    names: stamps.slice(0, 4).map((s) => localizeName(s, lang)).join(" · "),
+  };
+
+  useEffect(() => {
+    if (shareOpen && canvasRef.current) drawShareCard(canvasRef.current, t, shareInfo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shareOpen, lang]);
+  }, [shareOpen, lang, stamps]);
 
   const savePng = () => {
     const canvas = canvasRef.current;
@@ -81,13 +125,6 @@ export default function Passport({ lang }: Props) {
     a.href = canvas.toDataURL("image/png");
     a.click();
   };
-
-  const stamps = [
-    { pk: "⛰", name: "sDaedun", date: "JUN 28" },
-    { pk: "🏯", name: "sSeonun", date: "JUL 02" },
-    { pk: "⛰", name: "sMoak", date: "JUL 05" },
-    { pk: "⛰", name: "sNaejang", date: "JUL 09" },
-  ];
 
   return (
     <section className="screen active" id="scr-pass">
@@ -99,7 +136,9 @@ export default function Passport({ lang }: Props) {
             📤 {t("shareBtn")}
           </button>
         </div>
-        <p>{t("ppSummary")}</p>
+        <p>
+          <span className="num">⛰ {peaks}</span> · <span className="num">🏯 {temples}</span>
+        </p>
       </div>
 
       {shareOpen && (
@@ -120,25 +159,22 @@ export default function Passport({ lang }: Props) {
       <div className="hundred">
         <div className="top">
           <b className="t">{t("h100Title")}</b>
-          <span className="cnt num">4 / 100</span>
+          <span className="cnt num">{total} / 100</span>
         </div>
         <div className="bar gold">
-          <i style={{ width: "4%" }} />
+          <i style={{ width: `${Math.min(total, 100)}%` }} />
         </div>
         <p>{t("h100Desc")}</p>
       </div>
 
       <div className="stampgrid">
         {stamps.map((s) => (
-          <div key={s.name} className="stamp got">
-            <span className="pk">{s.pk}</span>
-            <b>{t(s.name)}</b>
-            <small>{s.date}</small>
+          <div key={s.id} className="stamp got">
+            <span className="pk">{s.kind === "temple" ? "🏯" : "⛰"}</span>
+            <b>{localizeName(s, lang)}</b>
+            <small>{fmtDate(s.stampedAt)}</small>
           </div>
         ))}
-        <div className="stamp empty">
-          <span>{t("sBaegam")}</span>
-        </div>
         <div className="stamp empty">
           <span>{t("sMore")}</span>
         </div>
