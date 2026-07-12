@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { Difficulty, Lang, Mountain, Region } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { SEOUL, distKm, mapUrl } from "@/lib/geo";
-import { mountainName } from "@/lib/name";
+import { mountainName, koSubtitle } from "@/lib/name";
 
 interface Props {
   lang: Lang;
@@ -156,7 +156,10 @@ export default function MountainList({ lang, mountains, onOpenDetail }: Props) {
           >
             <span className="dot">⛰</span>
             <span className="info">
-              <b>{mountainName(m, lang)}</b>
+              <b>
+                {mountainName(m, lang)}
+                {koSubtitle(m, lang) && <span className="kosub">{koSubtitle(m, lang)}</span>}
+              </b>
               <small>
                 {sort === "dist" && userLoc && (
                   <>

@@ -5,7 +5,7 @@ import type { Lang, Mountain, Taste } from "@/lib/types";
 import { LANGS, LANG_LABEL, makeT } from "@/lib/i18n";
 import { MOUNTAINS } from "@/data/mountains";
 import { provName } from "@/lib/provinces";
-import { mountainName } from "@/lib/name";
+import { mountainName, koSubtitle } from "@/lib/name";
 import type { SeasonalPick } from "@/data/seasonal";
 
 interface Props {
@@ -235,7 +235,10 @@ export default function Discover({ lang, setLang, taste, onEditTaste, onOpenMoun
             </div>
             <div className="body">
               <div className="name">
-                <b>{mountainName(m, lang)}</b>
+                <b>
+                  {mountainName(m, lang)}
+                  {koSubtitle(m, lang) && <span className="kosub">{koSubtitle(m, lang)}</span>}
+                </b>
                 <span>{m.prov ? provName(m.prov, lang) : t(`rg_${m.r}`)}</span>
               </div>
               <div className="meta">

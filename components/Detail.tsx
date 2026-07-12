@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Lang, Mountain } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { mapUrl } from "@/lib/geo";
-import { mountainName } from "@/lib/name";
+import { mountainName, koSubtitle } from "@/lib/name";
 import { TEMPLE_QUERY } from "@/data/temple-map";
 
 interface Props {
@@ -138,8 +138,8 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   };
 
   const isDaedunsan = m.ko === "대둔산";
-  const title =
-    lang === "en" ? `${m.en} ${m.ko}` : lang === "ko" ? m.ko : mountainName(m, lang);
+  const koSub = koSubtitle(m, lang);
+  const title = lang === "ko" ? m.ko : `${mountainName(m, lang)}${koSub ? ` ${koSub}` : ""}`;
   const distKmRT = (m.h * 2).toFixed(1);
 
   const staticTransit = [

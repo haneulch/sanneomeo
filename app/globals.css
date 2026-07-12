@@ -582,3 +582,6 @@
     font-size:11.5px; font-weight:800; color:var(--pine);
     border:1px solid var(--pine); border-radius:99px; padding:4px 11px; flex:0 0 auto;
   }
+
+  /* 외국어 선택 시 산 이름 한국어 병기 */
+  .kosub{margin-left:6px; font-size:.82em; font-weight:600; color:var(--ink-soft); opacity:.85}
