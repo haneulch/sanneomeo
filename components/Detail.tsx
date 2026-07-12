@@ -70,7 +70,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       .then(setSafety)
       .catch(() => setSafety(null));
 
-    fetch(`/api/nearby?lat=${m.lat}&lng=${m.lng}`)
+    fetch(`/api/nearby?lat=${m.lat}&lng=${m.lng}&lang=${lang}`)
       .then((r) => r.json())
       .then((d) => setNearby(d.items ?? []))
       .catch(() => setNearby([]));
@@ -86,7 +86,7 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
         })
         .catch(() => setTemple(null));
     }
-  }, [m]);
+  }, [m, lang]);
 
   const collectStamp = async () => {
     try {
@@ -220,8 +220,8 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
                   <small>{t("tzTrains")}</small>
                 </div>
               </div>
-              {transit.trains.map((tr) => (
-                <div key={tr.dep + tr.type} className="step">
+              {transit.trains.map((tr, i) => (
+                <div key={tr.dep + tr.type + i} className="step">
                   <span className="ico">🎫</span>
                   <div>
                     <b className="num">
@@ -279,8 +279,8 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       {nearby.length > 0 && (
         <div className="panel">
           <h3>{t("pnNearby")}</h3>
-          {nearby.map((n) => (
-            <div key={n.title} className="step">
+          {nearby.map((n, i) => (
+            <div key={n.title + i} className="step">
               <span className="ico">🧭</span>
               <div>
                 <b>{n.title}</b>

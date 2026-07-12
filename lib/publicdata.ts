@@ -149,14 +149,24 @@ export async function fetchMtWeather(): Promise<Record<string, unknown>[]> {
   return extractItems(json);
 }
 
-/** 한국관광공사 TourAPI 영문 — 좌표 기반 주변 관광지 */
+/** 언어 → TourAPI 서비스명 (국문/영문/일문/중문 간체) */
+const TOUR_SERVICE: Record<string, string> = {
+  ko: "KorService2",
+  en: "EngService2",
+  ja: "JpnService2",
+  zh: "ChsService2",
+};
+
+/** 한국관광공사 TourAPI — 좌표 기반 주변 관광지 (언어별 서비스) */
 export async function fetchNearbyTour(
   lng: number,
   lat: number,
+  lang = "en",
   radius = 15000
 ): Promise<Record<string, unknown>[]> {
+  const service = TOUR_SERVICE[lang] ?? "EngService2";
   const json = await fetchApi(
-    "https://apis.data.go.kr/B551011/EngService2/locationBasedList2",
+    `https://apis.data.go.kr/B551011/${service}/locationBasedList2`,
     {
       MobileOS: "ETC",
       MobileApp: "SanNeomeo",

@@ -81,12 +81,17 @@ export default function Discover({ lang, setLang, onOpenMountain, onOpenPassport
   const t = makeT(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const [seasonal, setSeasonal] = useState<SeasonalPick[]>([]);
+  const [stampCount, setStampCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/seasonal")
       .then((r) => r.json())
       .then((d) => setSeasonal(d.items ?? []))
       .catch(() => setSeasonal([]));
+    fetch("/api/stamps")
+      .then((r) => r.json())
+      .then((d) => setStampCount((d.stamps ?? []).length))
+      .catch(() => setStampCount(0));
   }, []);
 
   useEffect(() => {
@@ -173,7 +178,7 @@ export default function Discover({ lang, setLang, onOpenMountain, onOpenPassport
         <span className="pk">⛰</span>
         <span>
           <b>{t("b100Title")}</b>
-          <small>{t("b100Sub")}</small>
+          <small>{t("b100Sub").replace("{n}", String(stampCount))}</small>
         </span>
         <span className="go">›</span>
       </button>

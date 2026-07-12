@@ -10,8 +10,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const lat = Number(searchParams.get("lat") ?? 36.122);
   const lng = Number(searchParams.get("lng") ?? 127.322);
+  const lang = searchParams.get("lang") ?? "en";
 
-  const raw = await fetchNearbyTour(lng, lat);
+  const raw = await fetchNearbyTour(lng, lat, lang);
   const items = raw
     .map((r) => ({
       title: String(r.title ?? ""),
