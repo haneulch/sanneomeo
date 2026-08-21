@@ -6,6 +6,10 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -51,3 +55,30 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # 서버(SSH) 배포 — Variables에 DEPLOY_ENABLED=true 설정 시에만 실행.
+  # 필요한 Secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DATA_GO_KR_KEY
+  deploy:
+    needs: build-and-push
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            # public package라 docker login 불필요
+            docker pull ghcr.io/${{ github.repository }}:latest
+            docker rm -f sanneomeo 2>/dev/null || true
+            docker run -d --name sanneomeo --restart unless-stopped \
+              -p 127.0.0.1:3001:3000 \
+              --memory=400m --memory-swap=700m \
+              -e DATA_GO_KR_KEY='${{ secrets.DATA_GO_KR_KEY }}' \
+              -e DATA_STORE_DIR=/app/data/store \
+              -v sanneomeo-data:/app/data/store \
+              ghcr.io/${{ github.repository }}:latest
+            docker image prune -f
