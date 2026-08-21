@@ -34,6 +34,7 @@ RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 # standalone 출력 + 정적 자산
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 # 런타임에 fs로 읽는 사용자 데이터(CSV) — standalone 트레이싱 대상 아님이라 수동 복사
 COPY --from=builder /app/data/store ./data/store
 
