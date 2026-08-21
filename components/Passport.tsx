@@ -41,6 +41,8 @@ const BADGE_KEY: Record<string, string> = {
   grand: "bdg4",
 };
 
+type MeUser = { id: string; provider: "demo" | "google"; name: string } | null;
+
 interface Stamp {
   id: string;
   mountainKo: string;
@@ -67,7 +69,7 @@ interface ShareInfo {
   names: string;
 }
 
-function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info: ShareInfo) {
+function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info: ShareInfo, ownerTitle: string) {
   const W = 720, H = 900;
   canvas.width = W;
   canvas.height = H;
@@ -109,7 +111,7 @@ function drawShareCard(canvas: HTMLCanvasElement, t: (k: string) => string, info
   center("산너머", 130, "800 64px sans-serif");
   center("S A N N E O M E O", 172, "600 20px sans-serif", "rgba(242,245,239,.7)");
 
-  center(t("ppTitle"), 260, "700 32px sans-serif", "#E4E9E2");
+  center(ownerTitle, 260, "700 32px sans-serif", "#E4E9E2");
 
   center(`${info.total} / 100`, 400, "800 110px sans-serif", "#F2C94C");
   center(t("h100Title"), 450, "600 24px sans-serif", "rgba(242,245,239,.85)");
@@ -131,6 +133,16 @@ export default function Passport({ lang }: Props) {
   const [mysteries, setMysteries] = useState<Mystery[]>([]);
   const [hint, setHint] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // 로그인 사용자면 실제 이름, 아니면 데모 페르소나(Emma)
+  const [me, setMe] = useState<MeUser>(null);
+  useEffect(() => {
+    fetch("/api/me")
+      .then((r) => r.json())
+      .then((d) => setMe(d.user ?? null))
+      .catch(() => {});
+  }, []);
+  const ownerName = me?.provider === "google" ? me.name : "Emma";
+  const passTitle = t("ppTitle").replace("{name}", ownerName);
 
   useEffect(() => {
     fetch("/api/stamps")
@@ -165,9 +177,9 @@ export default function Passport({ lang }: Props) {
   };
 
   useEffect(() => {
-    if (shareOpen && canvasRef.current) drawShareCard(canvasRef.current, t, shareInfo);
+    if (shareOpen && canvasRef.current) drawShareCard(canvasRef.current, t, shareInfo, passTitle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shareOpen, lang, stamps]);
+  }, [shareOpen, lang, stamps, me]);
 
   const savePng = () => {
     const canvas = canvasRef.current;
@@ -181,10 +193,10 @@ export default function Passport({ lang }: Props) {
   return (
     <section className="screen active" id="scr-pass">
       <div className="pass-head">
-        <AccountBar lang={lang} />
+        <AccountBar lang={lang} me={me} />
         <span className="eyebrow">{t("ppEyebrow")}</span>
         <div className="pass-title">
-          <h1>{t("ppTitle")}</h1>
+          <h1>{passTitle}</h1>
           <button className="sharebtn" onClick={() => setShareOpen(true)}>
             📤 {t("shareBtn")}
           </button>
