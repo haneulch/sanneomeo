@@ -1,14 +1,10 @@
 import { getStore } from "@/lib/store";
 import type { User } from "@/lib/store/types";
+import { createAuthClient, isSupabaseAuthConfigured } from "@/lib/supabase/server";
 
-// ── 인증 교체 지점 ────────────────────────────────────────────
-// 지금: 로그인 없음 — 고정 데모 사용자.
-// 나중에 구글 로그인(NextAuth 등) 붙이면 getCurrentUser를 세션 기반으로 교체:
-//   const session = await getServerSession(authOptions);
-//   const u = { id: session.user.id, provider: "google",
-//               providerId: session.user.sub, email, name, ... };
-//   await getStore().upsertUser(u); return u;
-// 나머지 코드는 getCurrentUser()에만 의존하므로 무영향.
+// ── 인증 ──────────────────────────────────────────────────────
+// Supabase Auth(Google) 세션이 있으면 그 사용자, 없으면 데모 사용자 폴백.
+// 로그아웃 상태에서도 앱이 동작해야 하므로(데모·심사) 폴백을 유지한다.
 // ─────────────────────────────────────────────────────────────
 
 export const DEMO_USER: User = {
@@ -21,6 +17,32 @@ export const DEMO_USER: User = {
 };
 
 export async function getCurrentUser(): Promise<User> {
+  if (isSupabaseAuthConfigured()) {
+    const supabase = await createAuthClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const store = getStore();
+      const existing = await store.getUser(user.id);
+      if (existing) return existing;
+      return store.upsertUser({
+        id: user.id,
+        provider: "google",
+        providerId:
+          (user.user_metadata?.provider_id as string) ??
+          (user.user_metadata?.sub as string) ??
+          user.id,
+        email: user.email ?? "",
+        name:
+          (user.user_metadata?.full_name as string) ??
+          (user.user_metadata?.name as string) ??
+          user.email ??
+          "Hiker",
+        createdAt: user.created_at,
+      });
+    }
+  }
   const store = getStore();
   const existing = await store.getUser(DEMO_USER.id);
   if (existing) return existing;

@@ -1,15 +1,19 @@
 import type { StoreAdapter } from "@/lib/store/types";
 import { CsvStore } from "@/lib/store/csv-adapter";
+import { SupabaseStore } from "@/lib/store/supabase-adapter";
 
-// ── 저장소 교체 지점 ──────────────────────────────────────────
-// 지금: CSV 파일. 나중에 DB 붙이면 이 한 줄만 PrismaStore 등으로 교체.
-//   const store: StoreAdapter = new PrismaStore();
-// API 라우트·컴포넌트는 StoreAdapter 인터페이스에만 의존하므로 무영향.
+// ── 저장소 선택 ───────────────────────────────────────────────
+// SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY 가 있으면 Supabase(Postgres),
+// 없으면 CSV 파일 폴백 (로컬 개발·데모). API 라우트는 인터페이스에만 의존.
 // ─────────────────────────────────────────────────────────────
 let store: StoreAdapter | null = null;
 
 export function getStore(): StoreAdapter {
-  if (!store) store = new CsvStore();
+  if (!store) {
+    const useSupabase =
+      !!process.env.SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+    store = useSupabase ? new SupabaseStore() : new CsvStore();
+  }
   return store;
 }
 

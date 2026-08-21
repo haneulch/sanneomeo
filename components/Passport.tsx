@@ -6,6 +6,7 @@ import { makeT } from "@/lib/i18n";
 import { MOUNTAINS } from "@/data/mountains";
 import { provName } from "@/lib/provinces";
 import { mountainName } from "@/lib/name";
+import AccountBar from "@/components/AccountBar";
 
 interface Props {
   lang: Lang;
@@ -180,6 +181,7 @@ export default function Passport({ lang }: Props) {
   return (
     <section className="screen active" id="scr-pass">
       <div className="pass-head">
+        <AccountBar lang={lang} />
         <span className="eyebrow">{t("ppEyebrow")}</span>
         <div className="pass-title">
           <h1>{t("ppTitle")}</h1>

@@ -592,3 +592,30 @@
     font-size:9px; font-weight:600; color:rgba(255,255,255,.8);
     background:rgba(10,20,14,.4); padding:3px 7px; border-radius:99px; backdrop-filter:blur(3px);
   }
+
+/* ── 계정 바 (Passport 상단 로그인 상태) ── */
+.accountbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+.accountname {
+  color: var(--sub, #888);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.accountbtn {
+  flex: none;
+  border: 1px solid var(--line, #ddd);
+  background: transparent;
+  color: inherit;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.accountbtn:disabled { opacity: 0.5; }
