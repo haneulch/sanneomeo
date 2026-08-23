@@ -20,6 +20,17 @@ export default function Home() {
   const [taste, setTaste] = useState<Taste>({ diff: "mod", dur: 1, interests: ["chipGranite", "chipTemple"] });
   const [onboarded, setOnboarded] = useState(false); // 최초 온보딩 완료 여부
 
+  // 로그인 콜백 복귀(/?screen=pass): 온보딩 건너뛰고 패스포트 탭으로.
+  // 초기 상태를 직접 바꾸지 않고 마운트 후 전환해야 hydration이 안 깨진다.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get("screen") === "pass") {
+      setOnboarded(true);
+      setScreen("pass");
+      window.history.replaceState(null, "", "/");
+    }
+  }, []);
+
   useEffect(() => {
     fetch("/api/mountains")
       .then((r) => r.json())

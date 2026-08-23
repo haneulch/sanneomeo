@@ -13,5 +13,5 @@ export async function GET(request: Request) {
   // 절대 URL 금지: 터널/프록시 뒤에서는 request.url 의 host가 원본 도메인이 아니라
   // 컨테이너 바인딩 주소(0.0.0.0:3000)로 보인다. 상대 Location 은 브라우저가
   // 현재 주소(https://mtn.<도메인>/auth/callback) 기준으로 해석하므로 항상 안전.
-  return new NextResponse(null, { status: 302, headers: { Location: "/" } });
+  return new NextResponse(null, { status: 302, headers: { Location: "/?screen=pass" } });
 }

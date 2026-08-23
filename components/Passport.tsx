@@ -141,8 +141,8 @@ export default function Passport({ lang }: Props) {
       .then((d) => setMe(d.user ?? null))
       .catch(() => {});
   }, []);
-  const ownerName = me?.provider === "google" ? me.name : "Emma";
-  const passTitle = t("ppTitle").replace("{name}", ownerName);
+  const passTitle =
+    me?.provider === "google" ? t("ppTitle").replace("{name}", me.name) : t("ppTitleGuest");
 
   useEffect(() => {
     fetch("/api/stamps")
