@@ -89,7 +89,15 @@ export class SupabaseStore implements StoreAdapter {
       .order("stamped_at", { ascending: true })
       .returns<StampRow[]>();
     if (error) throw new Error(`listStamps: ${error.message}`);
-    return (data ?? []).map(toStamp);
+    // 사진 본문은 무겁기 때문에 존재 여부(stamp_id)만 별도 조회
+    const { data: photos, error: pErr } = await this.db
+      .from("sanneomeo_stamp_photos")
+      .select("stamp_id")
+      .eq("user_id", userId)
+      .returns<{ stamp_id: string }[]>();
+    if (pErr) throw new Error(`listStamps(photos): ${pErr.message}`);
+    const photoIds = new Set((photos ?? []).map((p) => p.stamp_id));
+    return (data ?? []).map((r) => ({ ...toStamp(r), hasPhoto: photoIds.has(r.id) }));
   }
 
   async listAllStamps(): Promise<Stamp[]> {
@@ -133,5 +141,31 @@ export class SupabaseStore implements StoreAdapter {
       .single<StampRow>();
     if (selErr) throw new Error(`addStamp(select): ${selErr.message}`);
     return toStamp(data);
+  }
+
+  async setStampPhoto(userId: string, stampId: string, jpegBase64: string): Promise<void> {
+    // 본인 스탬프인지 확인 후 upsert (재방문 시 사진 교체)
+    const { count, error: chkErr } = await this.db
+      .from("sanneomeo_stamps")
+      .select("id", { count: "exact", head: true })
+      .eq("id", stampId)
+      .eq("user_id", userId);
+    if (chkErr) throw new Error(`setStampPhoto(check): ${chkErr.message}`);
+    if ((count ?? 0) === 0) return;
+    const { error } = await this.db
+      .from("sanneomeo_stamp_photos")
+      .upsert({ stamp_id: stampId, user_id: userId, data: jpegBase64 }, { onConflict: "stamp_id" });
+    if (error) throw new Error(`setStampPhoto: ${error.message}`);
+  }
+
+  async getStampPhoto(userId: string, stampId: string): Promise<string | null> {
+    const { data, error } = await this.db
+      .from("sanneomeo_stamp_photos")
+      .select("data")
+      .eq("stamp_id", stampId)
+      .eq("user_id", userId)
+      .maybeSingle<{ data: string }>();
+    if (error) throw new Error(`getStampPhoto: ${error.message}`);
+    return data?.data ?? null;
   }
 }

@@ -10,3 +10,6 @@ next-env.d.ts
 *.tsbuildinfo
 /.env.local
 .env*.local
+
+# 사용자 스탬프 사진 (CSV 어댑터 저장물)
+/data/store/photos/

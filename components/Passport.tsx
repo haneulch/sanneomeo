@@ -49,6 +49,7 @@ interface Stamp {
   mountainEn: string;
   kind: "peak" | "temple";
   stampedAt: string;
+  hasPhoto?: boolean;
 }
 
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -132,6 +133,7 @@ export default function Passport({ lang }: Props) {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [mysteries, setMysteries] = useState<Mystery[]>([]);
   const [hint, setHint] = useState<string | null>(null);
+  const [photoStamp, setPhotoStamp] = useState<Stamp | null>(null); // 정상 사진 뷰어
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // 로그인 사용자면 실제 이름, 아니면 데모 페르소나(Emma)
   const [me, setMe] = useState<MeUser>(null);
@@ -234,16 +236,41 @@ export default function Passport({ lang }: Props) {
 
       <div className="stampgrid">
         {stamps.map((s) => (
-          <div key={s.id} className="stamp got">
+          <div
+            key={s.id}
+            className={`stamp got${s.hasPhoto ? " haspic" : ""}`}
+            onClick={s.hasPhoto ? () => setPhotoStamp(s) : undefined}
+          >
             <span className="pk">{s.kind === "temple" ? "🏯" : "⛰"}</span>
             <b>{localizeName(s, lang)}</b>
             <small>{fmtDate(s.stampedAt)}</small>
+            {s.hasPhoto && <span className="cam">📷</span>}
           </div>
         ))}
         <div className="stamp empty">
           <span>{t("sMore")}</span>
         </div>
       </div>
+
+      {photoStamp && (
+        <div className="sheetwrap" onClick={() => setPhotoStamp(null)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <b className="sheettitle">
+              📷 {localizeName(photoStamp, lang)} · {fmtDate(photoStamp.stampedAt)}
+            </b>
+            <img
+              className="stampphoto"
+              src={`/api/stamps/photo?id=${photoStamp.id}`}
+              alt={t("summitPhoto")}
+            />
+            <div className="sheetbtns">
+              <button className="primary" onClick={() => setPhotoStamp(null)}>
+                {t("shareClose")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="sechead">
         <span className="eyebrow">{t("bdgEyebrow")}</span>

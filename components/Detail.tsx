@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Lang, Mountain } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { mapUrl, distKm } from "@/lib/geo";
+import { fileToJpegDataUrl } from "@/lib/photo-capture";
 import { mountainName, koSubtitle } from "@/lib/name";
 import { romanize } from "@/lib/romanize";
 import { TEMPLE_QUERY } from "@/data/temple-map";
@@ -134,13 +135,16 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   }, [m, lang]);
 
   const [stamping, setStamping] = useState(false);
+  const [photoAsk, setPhotoAsk] = useState(false); // 위치 통과 후 사진 촬영 여부 시트
+  const cameraRef = useRef<HTMLInputElement>(null);
 
-  const doStamp = async () => {
+  const doStamp = async (photo?: string) => {
+    setPhotoAsk(false);
     try {
       await fetch("/api/stamps", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mountainKo: m.ko, mountainEn: m.en, kind: "peak" }),
+        body: JSON.stringify({ mountainKo: m.ko, mountainEn: m.en, kind: "peak", photo }),
       });
     } catch {
       /* 폴백: 저장 실패해도 패스포트로 이동 */
@@ -148,11 +152,21 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
     onStamp();
   };
 
+  // 카메라 캡쳐(갤러리 업로드 아님 — capture 속성) → 리사이즈 후 스탬프와 함께 저장
+  const onCapture = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      doStamp(await fileToJpegDataUrl(file));
+    } catch {
+      doStamp(); // 인코딩 실패 시 사진 없이 적립
+    }
+  };
+
   // GPS 인증: 산 반경 5km 이내에서만 스탬프. 위치 거부/미지원 시 데모 허용.
   const GEOFENCE_KM = 5;
   const collectStamp = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation || !m.lat || !m.lng) {
-      doStamp();
+      setPhotoAsk(true);
       return;
     }
     setStamping(true);
@@ -160,12 +174,12 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       (p) => {
         setStamping(false);
         const d = distKm({ lat: p.coords.latitude, lng: p.coords.longitude }, m);
-        if (d <= GEOFENCE_KM) doStamp();
-        else if (confirm(t("stampTooFar").replace("{km}", String(Math.round(d))))) doStamp();
+        if (d <= GEOFENCE_KM) setPhotoAsk(true);
+        else if (confirm(t("stampTooFar").replace("{km}", String(Math.round(d))))) setPhotoAsk(true);
       },
       () => {
         setStamping(false);
-        doStamp(); // 위치 거부 → 데모 허용
+        setPhotoAsk(true); // 위치 거부 → 데모 허용
       },
       { timeout: 5000, enableHighAccuracy: true }
     );
@@ -462,6 +476,35 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
       <button className="cta" onClick={collectStamp} disabled={stamping}>
         {stamping ? t("stampChecking") : t("cta")}
       </button>
+
+      {/* 위치 통과 후: 정상 사진 촬영 여부. capture 속성 → 갤러리가 아닌 카메라만 열림 */}
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        onChange={(e) => {
+          onCapture(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+      {photoAsk && (
+        <div className="sheetwrap" onClick={() => setPhotoAsk(false)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <b className="sheettitle">📷 {t("photoAskTitle")}</b>
+            <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--ink-soft)" }}>
+              {t("photoAskDesc")}
+            </p>
+            <div className="sheetbtns">
+              <button className="primary" onClick={() => cameraRef.current?.click()}>
+                📷 {t("photoTake")}
+              </button>
+              <button onClick={() => doStamp()}>{t("photoSkip")}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

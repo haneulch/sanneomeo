@@ -64,4 +64,25 @@ describe("CsvStore (임시 디렉터리)", () => {
   it("listStamps: 다른 사용자와 격리", async () => {
     expect(await store.listStamps("u2")).toEqual([]);
   });
+
+  it("스탬프 사진: 저장 → hasPhoto 플래그 → 조회 일치", async () => {
+    const [s] = await store.listStamps("u1");
+    const jpeg = Buffer.from("fake-jpeg-bytes").toString("base64");
+    await store.setStampPhoto("u1", s.id, jpeg);
+    const [after] = await store.listStamps("u1");
+    expect(after.hasPhoto).toBe(true);
+    expect(await store.getStampPhoto("u1", s.id)).toBe(jpeg);
+  });
+
+  it("스탬프 사진: 타인 스탬프에는 저장/조회 불가", async () => {
+    const [s] = await store.listStamps("u1");
+    await store.setStampPhoto("u2", s.id, "aGFjaw=="); // 무시되어야 함
+    expect(await store.getStampPhoto("u2", s.id)).toBeNull();
+    // u1의 기존 사진은 그대로
+    expect(await store.getStampPhoto("u1", s.id)).not.toBeNull();
+  });
+
+  it("스탬프 사진: 없는 스탬프 → null", async () => {
+    expect(await store.getStampPhoto("u1", "no-such-stamp")).toBeNull();
+  });
 });

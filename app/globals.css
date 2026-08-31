@@ -260,6 +260,13 @@
   .stamp.got small{font-size:9px; color:var(--amber); font-weight:800; letter-spacing:.06em}
   .stamp.empty{border:2px dashed var(--line); color:var(--ink-soft)}
   .stamp.empty span{font-size:10.5px; font-weight:600}
+  .stamp.haspic{position:relative; cursor:pointer}
+  .stamp .cam{
+    position:absolute; right:4px; bottom:8px; font-size:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:99px;
+    padding:1px 4px; line-height:1;
+  }
+  .stampphoto{width:100%; border-radius:12px; margin-top:10px; display:block}
   .bar{height:8px; background:var(--mist); border-radius:99px; margin-top:10px; overflow:hidden}
   .bar i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--moss),var(--pine))}
   .bar.gold i{background:linear-gradient(90deg,var(--amber),#B87A24)}

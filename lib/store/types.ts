@@ -21,6 +21,7 @@ export interface Stamp {
   mountainEn: string;
   kind: StampKind;
   stampedAt: string; // ISO
+  hasPhoto?: boolean; // 정상 인증 사진 존재 여부 (사진 본문은 getStampPhoto로 별도 조회)
 }
 
 export interface NewStamp {
@@ -40,4 +41,7 @@ export interface StoreAdapter {
   listAllStamps(): Promise<Stamp[]>; // 대시보드 집계용 (전체 사용자)
   hasStamp(userId: string, mountainKo: string): Promise<boolean>;
   addStamp(userId: string, stamp: NewStamp): Promise<Stamp>;
+  // 정상 인증 사진 (JPEG base64, data URL 프리픽스 제외). 본인 스탬프가 아니면 무시/null.
+  setStampPhoto(userId: string, stampId: string, jpegBase64: string): Promise<void>;
+  getStampPhoto(userId: string, stampId: string): Promise<string | null>;
 }

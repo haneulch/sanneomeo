@@ -3,7 +3,7 @@
 // 주의: 서버리스(Vercel 등)에서는 파일시스템이 휘발성 — 프로덕션은 DB 어댑터로 교체.
 // 동시성: 단일 프로세스 데모 기준 read-modify-write. 다중 쓰기 보장 안 함.
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { parseCsv, toCsv } from "@/lib/store/csv";
@@ -12,6 +12,7 @@ import type { NewStamp, Stamp, StoreAdapter, User } from "@/lib/store/types";
 const DIR = process.env.DATA_STORE_DIR ?? join(process.cwd(), "data", "store");
 const USERS = join(DIR, "users.csv");
 const STAMPS = join(DIR, "stamps.csv");
+const PHOTOS = join(DIR, "photos"); // {stampId}.jpg — 정상 인증 사진
 
 const USER_COLS = ["id", "provider", "providerId", "email", "name", "createdAt"];
 const STAMP_COLS = ["id", "userId", "mountainKo", "mountainEn", "kind", "stampedAt"];
@@ -46,9 +47,10 @@ export class CsvStore implements StoreAdapter {
   }
 
   async listStamps(userId: string): Promise<Stamp[]> {
+    const photoIds = await this.photoStampIds();
     return (await readRows(STAMPS))
       .filter((r) => r.userId === userId)
-      .map((r) => r as unknown as Stamp)
+      .map((r) => ({ ...(r as unknown as Stamp), hasPhoto: photoIds.has(r.id) }))
       .sort((a, b) => a.stampedAt.localeCompare(b.stampedAt));
   }
 
@@ -80,5 +82,33 @@ export class CsvStore implements StoreAdapter {
     rows.push(record as unknown as Record<string, string>);
     await writeRows(STAMPS, STAMP_COLS, rows);
     return record;
+  }
+
+  private async photoStampIds(): Promise<Set<string>> {
+    try {
+      const files = await readdir(PHOTOS);
+      return new Set(files.filter((f) => f.endsWith(".jpg")).map((f) => f.slice(0, -4)));
+    } catch {
+      return new Set();
+    }
+  }
+
+  private async ownsStamp(userId: string, stampId: string): Promise<boolean> {
+    return (await readRows(STAMPS)).some((r) => r.id === stampId && r.userId === userId);
+  }
+
+  async setStampPhoto(userId: string, stampId: string, jpegBase64: string): Promise<void> {
+    if (!(await this.ownsStamp(userId, stampId))) return;
+    await mkdir(PHOTOS, { recursive: true });
+    await writeFile(join(PHOTOS, `${stampId}.jpg`), Buffer.from(jpegBase64, "base64"));
+  }
+
+  async getStampPhoto(userId: string, stampId: string): Promise<string | null> {
+    if (!(await this.ownsStamp(userId, stampId))) return null;
+    try {
+      return (await readFile(join(PHOTOS, `${stampId}.jpg`))).toString("base64");
+    } catch {
+      return null;
+    }
   }
 }
