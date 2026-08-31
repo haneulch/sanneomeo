@@ -5,6 +5,7 @@ import type { Lang, Mountain } from "@/lib/types";
 import { makeT } from "@/lib/i18n";
 import { mapUrl, distKm } from "@/lib/geo";
 import { fileToJpegDataUrl } from "@/lib/photo-capture";
+import { looksMocked, watchSamples } from "@/lib/mock-gps";
 import { mountainName, koSubtitle } from "@/lib/name";
 import { romanize } from "@/lib/romanize";
 import { TEMPLE_QUERY } from "@/data/temple-map";
@@ -163,26 +164,28 @@ export default function Detail({ lang, mountain: m, onBack, onStamp }: Props) {
   };
 
   // GPS 인증: 산 반경 5km 이내에서만 스탬프. 위치 거부/미지원 시 데모 허용.
+  // 몇 초간 표본을 모아 좌표가 전혀 흔들리지 않으면 Fake GPS로 의심하고 거부.
   const GEOFENCE_KM = 5;
-  const collectStamp = () => {
+  const collectStamp = async () => {
     if (typeof navigator === "undefined" || !navigator.geolocation || !m.lat || !m.lng) {
       setPhotoAsk(true);
       return;
     }
     setStamping(true);
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        setStamping(false);
-        const d = distKm({ lat: p.coords.latitude, lng: p.coords.longitude }, m);
-        if (d <= GEOFENCE_KM) setPhotoAsk(true);
-        else if (confirm(t("stampTooFar").replace("{km}", String(Math.round(d))))) setPhotoAsk(true);
-      },
-      () => {
-        setStamping(false);
-        setPhotoAsk(true); // 위치 거부 → 데모 허용
-      },
-      { timeout: 5000, enableHighAccuracy: true }
-    );
+    const samples = await watchSamples();
+    setStamping(false);
+    if (samples.length === 0) {
+      setPhotoAsk(true); // 위치 거부/미확보 → 데모 허용
+      return;
+    }
+    if (looksMocked(samples)) {
+      alert(t("mockSuspect"));
+      return;
+    }
+    const last = samples[samples.length - 1];
+    const d = distKm({ lat: last.lat, lng: last.lng }, m);
+    if (d <= GEOFENCE_KM) setPhotoAsk(true);
+    else if (confirm(t("stampTooFar").replace("{km}", String(Math.round(d))))) setPhotoAsk(true);
   };
 
   const koSub = koSubtitle(m, lang);
